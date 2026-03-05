@@ -1,0 +1,708 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Refinitiv CVC Explorer</title>
+
+  <!-- SheetJS (XLSX parser) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 16px; }
+    h1 { margin: 0 0 12px; font-size: 20px; }
+    .card { border: 1px solid #ddd; border-radius: 10px; padding: 12px; margin: 12px 0; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+    label { font-size: 12px; color: #444; display: block; margin-bottom: 6px; }
+    select, input, button, textarea { font: inherit; }
+    select, input[type="number"] { padding: 8px; border: 1px solid #ccc; border-radius: 8px; }
+    button { padding: 10px 12px; border: 1px solid #222; border-radius: 10px; background: #111; color: #fff; cursor: pointer; }
+    button:disabled { opacity: .6; cursor: not-allowed; }
+    .muted { color: #666; font-size: 12px; }
+    .danger { color: #b00020; }
+    .ok { color: #0a7a28; }
+    .progress { white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: 12px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 6px 8px; font-size: 12px; vertical-align: top; }
+    th { position: sticky; top: 0; background: #fafafa; z-index: 1; }
+    .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .pill { display:inline-block; padding: 2px 8px; border:1px solid #ddd; border-radius: 999px; font-size: 12px; background:#fafafa; }
+    .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 900px) { .grid2 { grid-template-columns: 1fr; } }
+    .yearsBox { max-height: 180px; overflow: auto; border: 1px solid #eee; border-radius: 10px; padding: 8px; }
+    .yearsBox label { display:flex; gap:8px; align-items:center; margin: 0; padding: 6px 4px; border-radius: 8px; }
+    .yearsBox label:hover { background: #f7f7f7; }
+    .stickyTop { position: sticky; top: 0; background: white; padding-top: 8px; z-index: 2; }
+  </style>
+</head>
+
+<body>
+  <h1>Refinitiv CVC Explorer (GitHub Pages)</h1>
+  <div class="muted">
+    Reads monthly <code>.xlsx</code> files from <code>/data/{year}/YYYY-MM.xlsx</code>, lets users pick columns + years, and shows a paginated table.
+  </div>
+
+  <div class="card">
+    <div class="grid2">
+      <div>
+        <label>GitHub repository (owner/repo)</label>
+        <div class="row">
+          <input id="owner" placeholder="owner" style="width: 180px; padding:8px; border:1px solid #ccc; border-radius:8px;">
+          <input id="repo" placeholder="repo" style="width: 220px; padding:8px; border:1px solid #ccc; border-radius:8px;">
+        </div>
+        <div class="muted" style="margin-top:6px;">
+          Example: owner = <code>MehrdadAlikhani</code>, repo = <code>refinitiv-cvc</code>
+        </div>
+      </div>
+
+      <div>
+        <label>Branch</label>
+        <input id="branch" value="main" style="width: 220px; padding:8px; border:1px solid #ccc; border-radius:8px;">
+        <div class="muted" style="margin-top:6px;">
+          Used to build raw URLs when needed (usually <code>main</code>).
+        </div>
+      </div>
+    </div>
+
+    <div style="height:12px;"></div>
+
+    <div class="grid2">
+      <div>
+        <label>Years</label>
+        <div class="yearsBox" id="yearsBox"></div>
+        <div class="row" style="margin-top:8px;">
+          <button id="selectAllYears" type="button">Select all</button>
+          <button id="clearYears" type="button" style="background:#fff;color:#111;border:1px solid #ccc;">Clear</button>
+        </div>
+      </div>
+
+      <div>
+        <label>Columns (multi-select)</label>
+        <select id="columns" multiple size="10" style="width: 100%; min-height: 180px;"></select>
+        <div class="row" style="margin-top:8px;">
+          <button id="selectAllCols" type="button">Select all</button>
+          <button id="clearCols" type="button" style="background:#fff;color:#111;border:1px solid #ccc;">Clear</button>
+        </div>
+        <div class="muted" style="margin-top:6px;">
+          Tip: use Ctrl/Cmd to multi-select.
+        </div>
+      </div>
+    </div>
+
+    <div style="height:12px;"></div>
+
+    <div class="row">
+      <div>
+        <label>Rows per page</label>
+        <select id="pageSize">
+          <option>25</option>
+          <option selected>50</option>
+          <option>100</option>
+          <option>250</option>
+          <option>500</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Max files per year (safety)</label>
+        <input id="maxFilesPerYear" type="number" value="12" min="1" max="24" />
+      </div>
+
+      <div style="flex:1"></div>
+
+      <div>
+        <button id="runBtn" type="button">Load & Query</button>
+      </div>
+    </div>
+
+    <div class="muted" style="margin-top:10px;">
+      Notes: This runs fully in your browser and can be heavy if you select many years. GitHub API has rate limits for unauthenticated requests.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="stickyTop">
+      <div class="controls">
+        <span class="pill" id="statusPill">Idle</span>
+        <span class="pill" id="countPill">Rows: 0</span>
+        <span class="pill" id="filesPill">Files: 0</span>
+        <button id="prevBtn" type="button" disabled style="background:#fff;color:#111;border:1px solid #ccc;">Prev</button>
+        <button id="nextBtn" type="button" disabled style="background:#fff;color:#111;border:1px solid #ccc;">Next</button>
+        <span class="muted" id="pageInfo">Page 0 / 0</span>
+        <button id="downloadBtn" type="button" disabled style="background:#0b6;color:#fff;border:1px solid #0b6;">Download CSV (current selection)</button>
+      </div>
+      <div id="errorBox" class="muted danger" style="margin-top:8px;"></div>
+    </div>
+
+    <div class="progress" id="progress"></div>
+
+    <div style="max-height: 65vh; overflow:auto; border:1px solid #eee; border-radius:10px; margin-top:10px;">
+      <table id="table">
+        <thead id="thead"></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+<script>
+/**
+ * =========================
+ * 1) CONFIG + COLUMN LIST
+ * =========================
+ */
+const ALL_COLUMNS = [
+  "Investee Company Name",
+  "Investee Company BEID",
+  "Investee Company Nation",
+  "Investee Company TRBC Economic Sector",
+  "Investment Date",
+  "Round Number",
+  "Firm Investor Name",
+  "Firm Investor Organization Id",
+  "Fund Investor Name",
+  "Investor Equity Total (USD, Millions)",
+  "Disclosed Fund Equity Contribution (USD, Millions)",
+  "Round Equity Total (USD, Millions)",
+  "Disclosed Debt Contribution (USD, Millions)",
+  "Deal Value (USD, Millions)",
+  "Deal Rank Value (USD, Millions)",
+  "Firm Investors Type ('|')",
+  "Investee Company Area Code Number ('|')",
+  "Investee Company Area Code ('|')",
+  "Investee Company Branch City ('|')",
+  "Investee Company Nation (Branch Office) ('|')",
+  "Investee Company State/Region (Branch Office) ('|')",
+  "Investee Company Branch Street Address ('|')",
+  "Investee Company World Location (Branch Office) ('|')",
+  "Investee Company World Sub Location (Branch Office) ('|')",
+  "Investee Company Zip Code (Branch Office) ('|')",
+  "Investee Company City ('|')",
+  "Investee Company County ('|')",
+  "Investee Company Metropolitan Location ('|')",
+  "Investee Company North American Location ('|')",
+  "Investee Company State/Region ('|')",
+  "Investee Company Street Address ('|')",
+  "Investee Company World Location ('|')",
+  "Investee Company World Sub Location ('|')",
+  "Investee Company Zip Code ('|')",
+  "Investee Primary NAICS 2007 ('|')",
+  "Investee Primary NAICS 2022 ('|')",
+  "Investee Primary SIC ('|')",
+  "Investee Company Primary Technology Application ('|')",
+  "Investee Company Primary VE Industry Sub-Group 2 ('|')",
+  "Investee Company Primary VE Industry Sub-Group 1 ('|')",
+  "Investee Company Primary VE Minor Group ('|')",
+  "Investee Company Primary VE Major Group ('|')",
+  "Investee Company Primary VE Industry Class ('|')",
+  "Investee Company Primary VEIC ('|')",
+  "Investee Company Real Estate Asset Primary Sector ('|')",
+  "Investee Company TRBC Industry Group ('|')",
+  "Investee Company TRBC Industry ('|')",
+  "Investee Company TRBC Business Sector ('|')",
+  "Investee Company TRBC Activity ('|')",
+  "Investee Company NAICS 2007 ('|')",
+  "Investee Company NAICS 2022 ('|')",
+  "Investee SIC ('|')",
+  "Investee Company Technology Application ('|')",
+  "Investee Company VE Primary Industry Sub-Group 3 ('|')",
+  "Investee Company VE Industry Class ('|')",
+  "Investee Company VE Major Group ('|')",
+  "Investee Company VE Minor Group ('|')",
+  "Investee Company VE Industry Sub-Group 1 ('|')",
+  "Investee Company VE Industry Sub-Group 2 ('|')",
+  "Investee Company Total Funding Received To Date (USD, '|')",
+  "Investee Company First Investment Received Date ('|')",
+  "Investee Company Last Investment Received Date ('|')",
+  "Investee Company Number Of Investments Received To Date ('|')",
+  "Investee Company Number Of Investor Funds To Date ('|')",
+  "Investee Company Number Of Investor Firms To Date ('|')",
+  "Investee Company is Sustainable ('|')",
+  "Deal Age At Financing In Months ('|')",
+  "Investee Company Alias Name ('|')",
+  "Investee Company Fax Number (Branch Office) ('|')",
+  "Investee Company Phone Number (Branch Office) ('|')",
+  "Investee Company Short Business Description ('|')",
+  "Investee Company Long Business Description ('|')",
+  "Investee Company Current Public Status ('|')",
+  "Investee Company Current Operating Stage ('|')",
+  "Investee Company Founded Date ('|')",
+  "Investee Company Fax Number ('|')",
+  "Investee Company IPO Date ('|')",
+  "Real Estate Properties ('|')",
+  "Investee Company Primary Customer Type ('|')",
+  "Investee Portfolio Status ('|')",
+  "Investee Company Phone Number ('|')",
+  "Investee Company PermID ('|')",
+  "Investee Company Number Of Employees Most Recent Year End ('|')",
+  "Investee Company Status ('|')",
+  "Investee Company Website ('|')",
+  "Disclosed Post Round Company Valuation (USD, '|')",
+  "Post Round Company Valuation Direction ('|')",
+  "Investee Company All Investor Firms ('|')",
+  "Investee Company All Investor Funds ('|')",
+  "Investee Company Current Investor Firms ('|')",
+  "Investee Company Current Investor Funds ('|')",
+  "Investee Company Historical Investor Firms ('|')",
+  "Investee Company Historical Investor Funds ('|')",
+  "Firm Investors Area Code Number ('|')",
+  "Firm Investors Area Code ('|')",
+  "Firm Investors County ('|')",
+  "Firm Investors City ('|')",
+  "Firm Investors Metropolitan Location ('|')",
+  "Firm Investors Nation ('|')",
+  "Firm Investors North American Location ('|')",
+  "Firm Investors State/Region ('|')",
+  "Firm Investors Street Address ('|')",
+  "Firm Investors World Location ('|')",
+  "Firm Investors World Sub Location ('|')",
+  "Firm Investors Zip Code ('|')",
+  "Firm Investors First Investment Date ('|')",
+  "Firm Investors Industry Focus ('|')",
+  "Firm Investors Last Investment Date ('|')",
+  "Firm Investors Total Number of Companies Invested ('|')",
+  "Firm Investors Total Number Of Deals ('|')",
+  "Firm Investors Total Estimated Equity Invested To Date (USD, '|')",
+  "Firm Investors Affiliations ('|')",
+  "Firm Investors Capital Under Management (USD, '|')",
+  "Firm Investors Founded Year ('|')",
+  "Firm Investors Founded Date ('|')",
+  "Firm Investors Fax Number ('|')",
+  "Firm Investors Investment Type ('|')",
+  "Firm Investors Latest Fund Year ('|')",
+  "Firm Investors Latest Fund Closing Date ('|')",
+  "Firm Investors Latest Fund Business Entity Id ('|')",
+  "Firm Investors Latest Fund Name ('|')",
+  "Firm Investors Latest Fund Size (USD, '|')",
+  "No. of Funds Managed by Firm Investor ('|')",
+  "Firm Investors Phone Number ('|')",
+  "Firm Investors Preferred Maximum Investment (USD, '|')",
+  "Firm Investors Preferred Minimum Investment (USD, '|')",
+  "Firm Investors Status ('|')",
+  "Firm Investors Website ('|')",
+  "Firm Investors Geography Investment Preference ('|')",
+  "Firm Investors Industry Investment Preference ('|')",
+  "Firm Investors Stage Investment Preference ('|')",
+  "Firm Investors Asset Under Management (USD)",
+  "Fund Investors Area Code ('|')",
+  "Fund Investors Area Code Number ('|')",
+  "Fund Investors County ('|')",
+  "Fund Investors City ('|')",
+  "Fund Investors North American Location ('|')",
+  "Fund Investors Nation ('|')",
+  "Fund Investors Metropolitan Location ('|')",
+  "Fund Investors State/Region ('|')",
+  "Fund Investors Street Address ('|')",
+  "Fund Investors World Sub Location ('|')",
+  "Fund Investors World Location ('|')",
+  "Fund Investors Zip Code ('|')",
+  "Fund Investors Total Estimated Equity Invested To Date (USD, '|')",
+  "Fund Investors First Investment Date ('|')",
+  "Fund Investors Investor Type ('|')",
+  "Fund Investors Investment Focus ('|')",
+  "Fund Investors Last Investment Date ('|')",
+  "Total Number of Companies Invested in by Fund Investor ('|')",
+  "Fund Investors Total Number Of Companies Invested In ('|')",
+  "Fund Investors Total Number Of Deals ('|')",
+  "Fund Investors Stage ('|')",
+  "Lead Investor ('|')",
+  "Fund Investors Founded Date ('|')",
+  "Fund Investors Phone ('|')",
+  "Fund Investors Status ('|')",
+  "Fund Investors Sequence ('|')",
+  "Fund Investors Size (USD, '|')",
+  "Fund Investors Size Target (USD, '|')",
+  "Fund Investors Investment Status ('|')",
+  "Fund Investors Type ('|')",
+  "Fund Investors Fund Year ('|')",
+  "Fund Investors Geography Investment Preference ('|')",
+  "Fund Investors Industry Investment Preference ('|')",
+  "Fund Investors Stage Investment Preference ('|')",
+  "Company Legal Advisor on Round ('|')",
+  "Investor's Legal Advisor on Round ('|')",
+  "Investor's Parent Legal Advisor on Round Code ('|')",
+  "Company's Parent Legal Advisor on Round Code ('|')",
+  "Company's Parent Legal Advisor on Round ('|')",
+  "Investor's Parent Legal Advisor on Round ('|')",
+  "Investor's Legal Advisor Parent Nation ('|')",
+  "Company's Legal Advisor Parent Nation ('|')",
+  "Investor's Legal Advisor Nation ('|')",
+  "Company's Legal Advisor Nation ('|')",
+  "Deal Location City ('|')",
+  "Deal Location Country Id ('|')",
+  "Deal Location Postal Code ('|')",
+  "Deal Location State Code ('|')",
+  "Deal Location Street Address ('|')",
+  "Deal Location World Region ('|')",
+  "Deal Location World Sub Region ('|')",
+  "PE Effective Date (:, '|')",
+  "Venture Capital Deals ('|')",
+  "Buyout Deals ('|')",
+  "Disclosed Fund Debt Contribution (USD, '|')",
+  "Disclosed Equity Contribution (USD, '|')",
+  "Fund Investors Portfolio Company Participation Rounds ('|')",
+  "Corporate Investment ('|')",
+  "Pure Venture Capital Deals ('|')",
+  "VC Reporter Deals ('|')",
+  "New Or Follow on Investment Indicator ('|')",
+  "Deal Post Round Security Issued ('|')",
+  "Primary Security Type ('|')",
+  "Deal Round Financing Stage Code 1 ('|')",
+  "Deal Round Financing Stage Code 2 ('|')",
+  "Number Of Funds ('|')",
+  "Round Company Operating Stage ('|')",
+  "Secondary Security Type ('|')",
+  "Tertiary Security Type ('|')",
+  "Lastest Round flag in a Company ('|')",
+  "Estimated Buyout Value (USD, '|')",
+  "Estimated Rank Value (USD, '|')",
+  "PE Deal Round Status"
+];
+
+// Your folder years (2000..2026)
+const YEARS = Array.from({length: 2026 - 2000 + 1}, (_, i) => String(2000 + i));
+
+/**
+ * =========================
+ * 2) UI INITIALIZATION
+ * =========================
+ */
+const el = (id) => document.getElementById(id);
+
+let ALL_ROWS = [];     // full result set in memory
+let VIEW_ROWS = [];    // possibly same; kept for future filters
+let CURRENT_PAGE = 1;
+
+function setStatus(text, kind="muted") {
+  const pill = el("statusPill");
+  pill.textContent = text;
+  pill.className = "pill " + (kind === "danger" ? "danger" : kind === "ok" ? "ok" : "");
+}
+function setError(msg="") { el("errorBox").textContent = msg; }
+function logProgress(msg) { el("progress").textContent += msg + "\n"; }
+function clearProgress() { el("progress").textContent = ""; }
+
+function initYears() {
+  const box = el("yearsBox");
+  box.innerHTML = "";
+  for (const y of YEARS) {
+    const line = document.createElement("label");
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.value = y;
+    // preselect nothing by default
+    line.appendChild(cb);
+    const span = document.createElement("span");
+    span.textContent = y;
+    line.appendChild(span);
+    box.appendChild(line);
+  }
+}
+
+function initColumns() {
+  const sel = el("columns");
+  sel.innerHTML = "";
+  for (const c of ALL_COLUMNS) {
+    const opt = document.createElement("option");
+    opt.value = c;
+    opt.textContent = c;
+    sel.appendChild(opt);
+  }
+}
+
+function getSelectedYears() {
+  return Array.from(el("yearsBox").querySelectorAll("input[type=checkbox]:checked")).map(x => x.value);
+}
+function getSelectedColumns() {
+  return Array.from(el("columns").selectedOptions).map(o => o.value);
+}
+
+/**
+ * =========================
+ * 3) GITHUB LISTING + XLSX LOADING
+ * =========================
+ * We list files using GitHub Contents API:
+ *   GET https://api.github.com/repos/{owner}/{repo}/contents/data/{year}
+ * Each item has download_url we can fetch directly.
+ */
+async function githubListYearFiles(owner, repo, year) {
+  const url = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/data/${encodeURIComponent(year)}`;
+  const res = await fetch(url, { headers: { "Accept": "application/vnd.github+json" } });
+  if (!res.ok) {
+    const txt = await res.text().catch(() => "");
+    throw new Error(`GitHub API error for year ${year}: ${res.status} ${res.statusText} ${txt}`);
+  }
+  const items = await res.json();
+  if (!Array.isArray(items)) return [];
+  // keep only xlsx files
+  return items
+    .filter(it => it && it.type === "file" && typeof it.name === "string" && it.name.toLowerCase().endsWith(".xlsx"))
+    .map(it => ({
+      name: it.name,
+      download_url: it.download_url,
+      path: it.path
+    }))
+    // sort by name (YYYY-MM.xlsx)
+    .sort((a,b) => a.name.localeCompare(b.name));
+}
+
+async function fetchAndParseXlsx(downloadUrl) {
+  const res = await fetch(downloadUrl);
+  if (!res.ok) throw new Error(`Failed to fetch ${downloadUrl}: ${res.status} ${res.statusText}`);
+  const ab = await res.arrayBuffer();
+  const wb = XLSX.read(ab, { type: "array" });
+  const sheetName = wb.SheetNames[0];
+  if (!sheetName) return [];
+  const ws = wb.Sheets[sheetName];
+
+  // Convert to rows using header row; defval keeps empty cells as ""
+  const json = XLSX.utils.sheet_to_json(ws, { defval: "" });
+  return Array.isArray(json) ? json : [];
+}
+
+/**
+ * =========================
+ * 4) TABLE RENDER + PAGINATION
+ * =========================
+ */
+function escapeHtml(s) {
+  return String(s)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function renderTable() {
+  const cols = getSelectedColumns();
+  const pageSize = parseInt(el("pageSize").value, 10) || 50;
+  const total = VIEW_ROWS.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  CURRENT_PAGE = Math.min(Math.max(1, CURRENT_PAGE), totalPages);
+
+  const start = (CURRENT_PAGE - 1) * pageSize;
+  const end = Math.min(start + pageSize, total);
+  const pageRows = VIEW_ROWS.slice(start, end);
+
+  // Head
+  const thead = el("thead");
+  thead.innerHTML = "";
+  const trh = document.createElement("tr");
+  for (const c of cols) {
+    const th = document.createElement("th");
+    th.innerHTML = escapeHtml(c);
+    trh.appendChild(th);
+  }
+  thead.appendChild(trh);
+
+  // Body
+  const tbody = el("tbody");
+  tbody.innerHTML = "";
+  for (const r of pageRows) {
+    const tr = document.createElement("tr");
+    for (const c of cols) {
+      const td = document.createElement("td");
+      td.innerHTML = escapeHtml(r?.[c] ?? "");
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  }
+
+  // Controls
+  el("pageInfo").textContent = `Page ${CURRENT_PAGE} / ${totalPages} (showing ${start+1}-${end} of ${total})`;
+  el("prevBtn").disabled = (CURRENT_PAGE <= 1);
+  el("nextBtn").disabled = (CURRENT_PAGE >= totalPages);
+  el("downloadBtn").disabled = (total === 0 || cols.length === 0);
+
+  el("countPill").textContent = `Rows: ${total.toLocaleString()}`;
+}
+
+function downloadCsvCurrentSelection() {
+  const cols = getSelectedColumns();
+  if (!cols.length) return;
+
+  // Export ALL result rows (not just current page)
+  const rows = VIEW_ROWS;
+
+  const csvLines = [];
+  csvLines.push(cols.map(c => `"${String(c).replaceAll('"','""')}"`).join(","));
+  for (const r of rows) {
+    const line = cols.map(c => {
+      const v = r?.[c] ?? "";
+      return `"${String(v).replaceAll('"','""')}"`;
+    }).join(",");
+    csvLines.push(line);
+  }
+  const blob = new Blob([csvLines.join("\n")], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "cvc_query_results.csv";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+/**
+ * =========================
+ * 5) MAIN RUN
+ * =========================
+ */
+async function runQuery() {
+  setError("");
+  clearProgress();
+  setStatus("Working…");
+
+  const owner = el("owner").value.trim();
+  const repo = el("repo").value.trim();
+  const branch = el("branch").value.trim() || "main";
+  const years = getSelectedYears();
+  const cols = getSelectedColumns();
+  const maxFilesPerYear = Math.max(1, Math.min(24, parseInt(el("maxFilesPerYear").value, 10) || 12));
+
+  if (!owner || !repo) {
+    setStatus("Idle");
+    setError("Please fill in GitHub owner and repo.");
+    return;
+  }
+  if (!years.length) {
+    setStatus("Idle");
+    setError("Please select at least one year.");
+    return;
+  }
+  if (!cols.length) {
+    setStatus("Idle");
+    setError("Please select at least one column.");
+    return;
+  }
+
+  // Reset data
+  ALL_ROWS = [];
+  VIEW_ROWS = [];
+  CURRENT_PAGE = 1;
+  el("filesPill").textContent = "Files: 0";
+  el("countPill").textContent = "Rows: 0";
+
+  logProgress(`Repo: ${owner}/${repo} (branch: ${branch})`);
+  logProgress(`Years: ${years.join(", ")}`);
+  logProgress(`Columns: ${cols.length}`);
+  logProgress("");
+
+  let fileCount = 0;
+
+  try {
+    for (const y of years) {
+      logProgress(`Listing files for year ${y}…`);
+      const files = await githubListYearFiles(owner, repo, y);
+
+      if (!files.length) {
+        logProgress(`  (No .xlsx files found in /data/${y}/)`);
+        continue;
+      }
+
+      // Safety: take at most maxFilesPerYear (normally 12 months)
+      const picked = files.slice(0, maxFilesPerYear);
+
+      logProgress(`  Found ${files.length} .xlsx files, loading ${picked.length}…`);
+      for (const f of picked) {
+        fileCount += 1;
+        el("filesPill").textContent = `Files: ${fileCount.toLocaleString()}`;
+        logProgress(`    Loading ${f.name}…`);
+
+        const rows = await fetchAndParseXlsx(f.download_url);
+
+        // Keep only requested columns + add file metadata (optional)
+        for (const row of rows) {
+          const out = {};
+          for (const c of cols) out[c] = row?.[c] ?? "";
+          // Optional trace fields (comment out if you don't want them)
+          out.__source_year = y;
+          out.__source_file = f.name;
+          ALL_ROWS.push(out);
+        }
+
+        logProgress(`      +${rows.length} rows`);
+        el("countPill").textContent = `Rows: ${ALL_ROWS.length.toLocaleString()}`;
+      }
+      logProgress("");
+    }
+
+    if (ALL_ROWS.length === 0) {
+      setStatus("Done", "ok");
+      setError("No rows were loaded. Check that the repo path is /data/{year}/YYYY-MM.xlsx and the files exist.");
+      VIEW_ROWS = [];
+      renderTable();
+      return;
+    }
+
+    // By default, show all loaded rows
+    VIEW_ROWS = ALL_ROWS;
+
+    // If you don't want the trace columns, remove them from view by not selecting them.
+    // (They are not in your column list, so they won't display unless you add them.)
+    setStatus("Done", "ok");
+    renderTable();
+  } catch (err) {
+    console.error(err);
+    setStatus("Error", "danger");
+    setError(String(err?.message || err));
+    VIEW_ROWS = [];
+    renderTable();
+  }
+}
+
+/**
+ * =========================
+ * 6) EVENTS
+ * =========================
+ */
+el("runBtn").addEventListener("click", runQuery);
+
+el("prevBtn").addEventListener("click", () => { CURRENT_PAGE -= 1; renderTable(); });
+el("nextBtn").addEventListener("click", () => { CURRENT_PAGE += 1; renderTable(); });
+el("pageSize").addEventListener("change", () => { CURRENT_PAGE = 1; renderTable(); });
+el("columns").addEventListener("change", () => { CURRENT_PAGE = 1; renderTable(); });
+
+el("downloadBtn").addEventListener("click", downloadCsvCurrentSelection);
+
+el("selectAllYears").addEventListener("click", () => {
+  el("yearsBox").querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = true);
+});
+el("clearYears").addEventListener("click", () => {
+  el("yearsBox").querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = false);
+});
+
+el("selectAllCols").addEventListener("click", () => {
+  const sel = el("columns");
+  Array.from(sel.options).forEach(o => o.selected = true);
+  CURRENT_PAGE = 1;
+  renderTable();
+});
+el("clearCols").addEventListener("click", () => {
+  const sel = el("columns");
+  Array.from(sel.options).forEach(o => o.selected = false);
+  CURRENT_PAGE = 1;
+  renderTable();
+});
+
+// Initialize UI
+initYears();
+initColumns();
+renderTable();
+</script>
+
+<div class="muted" style="margin-top:12px;">
+  <strong>How to use on GitHub Pages:</strong>
+  <ol>
+    <li>Put this file as <code>index.html</code> in your repo root (or in a <code>docs/</code> folder).</li>
+    <li>Enable GitHub Pages (Settings → Pages) and choose the branch/folder that contains <code>index.html</code>.</li>
+    <li>Make sure your data is in <code>/data/2000/2000-01.xlsx</code> … <code>/data/2026/2026-12.xlsx</code>.</li>
+    <li>Open the GitHub Pages URL, enter <code>owner</code> + <code>repo</code>, choose columns/years, click <em>Load & Query</em>.</li>
+  </ol>
+  <div class="muted">
+    If you hit GitHub API rate limits, reduce the number of years you load at once (or consider generating a simple <code>manifest.json</code> in the repo and reading that instead of listing via API).
+  </div>
+</div>
+
+</body>
+</html>
