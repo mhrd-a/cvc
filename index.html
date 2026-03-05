@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Data Explorer</title>
 
-  <!-- SheetJS (XLSX parser) -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <style>
@@ -46,10 +45,9 @@
         <label>Owner</label>
         <input id="owner" value="mhrd-a" type="text" style="width: 220px;">
       </div>
-
       <div>
         <label>Repository</label>
-        <input id="repo" value="refinitiv-cvc" type="text" style="width: 260px;">
+        <input id="repo" value="cvc" type="text" style="width: 260px;">
       </div>
     </div>
 
@@ -81,14 +79,14 @@
       </div>
 
       <div>
-        <label>Columns (multi-select)</label>
+        <label>Columns (loaded from Excel header row)</label>
         <select id="columns" multiple size="10" style="width: 100%; min-height: 180px;"></select>
         <div class="row" style="margin-top:8px;">
           <button id="selectAllCols" type="button">Select all</button>
           <button id="clearCols" type="button" style="background:#fff;color:#111;border:1px solid #ccc;">Clear</button>
         </div>
         <div class="muted" style="margin-top:6px;">
-          Tip: use Ctrl/Cmd to multi-select.
+          Tip: Ctrl/Cmd for multi-select.
         </div>
       </div>
     </div>
@@ -114,7 +112,7 @@
     </div>
 
     <div class="muted" style="margin-top:10px;">
-      This runs in your browser. Loading many years can be slow/heavy.
+      First file loaded will be used to detect the exact column headers (including line breaks).
     </div>
   </div>
 
@@ -130,6 +128,7 @@
         <button id="downloadBtn" type="button" disabled style="background:#0b6;color:#fff;border:1px solid #0b6;">Download CSV</button>
       </div>
       <div id="errorBox" class="muted danger" style="margin-top:8px;"></div>
+      <div id="warnBox" class="muted" style="margin-top:6px;"></div>
     </div>
 
     <div class="progress" id="progress"></div>
@@ -143,98 +142,17 @@
   </div>
 
 <script>
-/**
- * 1) COLUMN LIST
- */
-const ALL_COLUMNS = [
-  "Investee Company Name","Investee Company BEID","Investee Company Nation","Investee Company TRBC Economic Sector",
-  "Investment Date","Round Number","Firm Investor Name","Firm Investor Organization Id","Fund Investor Name",
-  "Investor Equity Total (USD, Millions)","Disclosed Fund Equity Contribution (USD, Millions)","Round Equity Total (USD, Millions)",
-  "Disclosed Debt Contribution (USD, Millions)","Deal Value (USD, Millions)","Deal Rank Value (USD, Millions)",
-  "Firm Investors Type ('|')","Investee Company Area Code Number ('|')","Investee Company Area Code ('|')",
-  "Investee Company Branch City ('|')","Investee Company Nation (Branch Office) ('|')","Investee Company State/Region (Branch Office) ('|')",
-  "Investee Company Branch Street Address ('|')","Investee Company World Location (Branch Office) ('|')",
-  "Investee Company World Sub Location (Branch Office) ('|')","Investee Company Zip Code (Branch Office) ('|')",
-  "Investee Company City ('|')","Investee Company County ('|')","Investee Company Metropolitan Location ('|')",
-  "Investee Company North American Location ('|')","Investee Company State/Region ('|')","Investee Company Street Address ('|')",
-  "Investee Company World Location ('|')","Investee Company World Sub Location ('|')","Investee Company Zip Code ('|')",
-  "Investee Primary NAICS 2007 ('|')","Investee Primary NAICS 2022 ('|')","Investee Primary SIC ('|')",
-  "Investee Company Primary Technology Application ('|')","Investee Company Primary VE Industry Sub-Group 2 ('|')",
-  "Investee Company Primary VE Industry Sub-Group 1 ('|')","Investee Company Primary VE Minor Group ('|')",
-  "Investee Company Primary VE Major Group ('|')","Investee Company Primary VE Industry Class ('|')",
-  "Investee Company Primary VEIC ('|')","Investee Company Real Estate Asset Primary Sector ('|')",
-  "Investee Company TRBC Industry Group ('|')","Investee Company TRBC Industry ('|')","Investee Company TRBC Business Sector ('|')",
-  "Investee Company TRBC Activity ('|')","Investee Company NAICS 2007 ('|')","Investee Company NAICS 2022 ('|')",
-  "Investee SIC ('|')","Investee Company Technology Application ('|')","Investee Company VE Primary Industry Sub-Group 3 ('|')",
-  "Investee Company VE Industry Class ('|')","Investee Company VE Major Group ('|')","Investee Company VE Minor Group ('|')",
-  "Investee Company VE Industry Sub-Group 1 ('|')","Investee Company VE Industry Sub-Group 2 ('|')",
-  "Investee Company Total Funding Received To Date (USD, '|')","Investee Company First Investment Received Date ('|')",
-  "Investee Company Last Investment Received Date ('|')","Investee Company Number Of Investments Received To Date ('|')",
-  "Investee Company Number Of Investor Funds To Date ('|')","Investee Company Number Of Investor Firms To Date ('|')",
-  "Investee Company is Sustainable ('|')","Deal Age At Financing In Months ('|')","Investee Company Alias Name ('|')",
-  "Investee Company Fax Number (Branch Office) ('|')","Investee Company Phone Number (Branch Office) ('|')",
-  "Investee Company Short Business Description ('|')","Investee Company Long Business Description ('|')",
-  "Investee Company Current Public Status ('|')","Investee Company Current Operating Stage ('|')",
-  "Investee Company Founded Date ('|')","Investee Company Fax Number ('|')","Investee Company IPO Date ('|')",
-  "Real Estate Properties ('|')","Investee Company Primary Customer Type ('|')","Investee Portfolio Status ('|')",
-  "Investee Company Phone Number ('|')","Investee Company PermID ('|')","Investee Company Number Of Employees Most Recent Year End ('|')",
-  "Investee Company Status ('|')","Investee Company Website ('|')","Disclosed Post Round Company Valuation (USD, '|')",
-  "Post Round Company Valuation Direction ('|')","Investee Company All Investor Firms ('|')","Investee Company All Investor Funds ('|')",
-  "Investee Company Current Investor Firms ('|')","Investee Company Current Investor Funds ('|')",
-  "Investee Company Historical Investor Firms ('|')","Investee Company Historical Investor Funds ('|')",
-  "Firm Investors Area Code Number ('|')","Firm Investors Area Code ('|')","Firm Investors County ('|')","Firm Investors City ('|')",
-  "Firm Investors Metropolitan Location ('|')","Firm Investors Nation ('|')","Firm Investors North American Location ('|')",
-  "Firm Investors State/Region ('|')","Firm Investors Street Address ('|')","Firm Investors World Location ('|')",
-  "Firm Investors World Sub Location ('|')","Firm Investors Zip Code ('|')",
-  "Firm Investors First Investment Date ('|')","Firm Investors Industry Focus ('|')","Firm Investors Last Investment Date ('|')",
-  "Firm Investors Total Number of Companies Invested ('|')","Firm Investors Total Number Of Deals ('|')",
-  "Firm Investors Total Estimated Equity Invested To Date (USD, '|')","Firm Investors Affiliations ('|')",
-  "Firm Investors Capital Under Management (USD, '|')","Firm Investors Founded Year ('|')","Firm Investors Founded Date ('|')",
-  "Firm Investors Fax Number ('|')","Firm Investors Investment Type ('|')","Firm Investors Latest Fund Year ('|')",
-  "Firm Investors Latest Fund Closing Date ('|')","Firm Investors Latest Fund Business Entity Id ('|')",
-  "Firm Investors Latest Fund Name ('|')","Firm Investors Latest Fund Size (USD, '|')",
-  "No. of Funds Managed by Firm Investor ('|')","Firm Investors Phone Number ('|')",
-  "Firm Investors Preferred Maximum Investment (USD, '|')","Firm Investors Preferred Minimum Investment (USD, '|')",
-  "Firm Investors Status ('|')","Firm Investors Website ('|')","Firm Investors Geography Investment Preference ('|')",
-  "Firm Investors Industry Investment Preference ('|')","Firm Investors Stage Investment Preference ('|')",
-  "Firm Investors Asset Under Management (USD)",
-  "Fund Investors Area Code ('|')","Fund Investors Area Code Number ('|')","Fund Investors County ('|')","Fund Investors City ('|')",
-  "Fund Investors North American Location ('|')","Fund Investors Nation ('|')","Fund Investors Metropolitan Location ('|')",
-  "Fund Investors State/Region ('|')","Fund Investors Street Address ('|')","Fund Investors World Sub Location ('|')",
-  "Fund Investors World Location ('|')","Fund Investors Zip Code ('|')",
-  "Fund Investors Total Estimated Equity Invested To Date (USD, '|')","Fund Investors First Investment Date ('|')",
-  "Fund Investors Investor Type ('|')","Fund Investors Investment Focus ('|')","Fund Investors Last Investment Date ('|')",
-  "Total Number of Companies Invested in by Fund Investor ('|')","Fund Investors Total Number Of Companies Invested In ('|')",
-  "Fund Investors Total Number Of Deals ('|')","Fund Investors Stage ('|')","Lead Investor ('|')","Fund Investors Founded Date ('|')",
-  "Fund Investors Phone ('|')","Fund Investors Status ('|')","Fund Investors Sequence ('|')","Fund Investors Size (USD, '|')",
-  "Fund Investors Size Target (USD, '|')","Fund Investors Investment Status ('|')","Fund Investors Type ('|')",
-  "Fund Investors Fund Year ('|')","Fund Investors Geography Investment Preference ('|')","Fund Investors Industry Investment Preference ('|')",
-  "Fund Investors Stage Investment Preference ('|')",
-  "Company Legal Advisor on Round ('|')","Investor's Legal Advisor on Round ('|')",
-  "Investor's Parent Legal Advisor on Round Code ('|')","Company's Parent Legal Advisor on Round Code ('|')",
-  "Company's Parent Legal Advisor on Round ('|')","Investor's Parent Legal Advisor on Round ('|')",
-  "Investor's Legal Advisor Parent Nation ('|')","Company's Legal Advisor Parent Nation ('|')",
-  "Investor's Legal Advisor Nation ('|')","Company's Legal Advisor Nation ('|')",
-  "Deal Location City ('|')","Deal Location Country Id ('|')","Deal Location Postal Code ('|')","Deal Location State Code ('|')",
-  "Deal Location Street Address ('|')","Deal Location World Region ('|')","Deal Location World Sub Region ('|')",
-  "PE Effective Date (:, '|')",
-  "Venture Capital Deals ('|')","Buyout Deals ('|')",
-  "Disclosed Fund Debt Contribution (USD, '|')","Disclosed Equity Contribution (USD, '|')",
-  "Fund Investors Portfolio Company Participation Rounds ('|')","Corporate Investment ('|')","Pure Venture Capital Deals ('|')",
-  "VC Reporter Deals ('|')","New Or Follow on Investment Indicator ('|')","Deal Post Round Security Issued ('|')",
-  "Primary Security Type ('|')","Deal Round Financing Stage Code 1 ('|')","Deal Round Financing Stage Code 2 ('|')",
-  "Number Of Funds ('|')","Round Company Operating Stage ('|')","Secondary Security Type ('|')","Tertiary Security Type ('|')",
-  "Lastest Round flag in a Company ('|')","Estimated Buyout Value (USD, '|')","Estimated Rank Value (USD, '|')",
-  "PE Deal Round Status"
-];
-
 const YEARS = Array.from({length: 2026 - 2000 + 1}, (_, i) => String(2000 + i));
-
 const el = (id) => document.getElementById(id);
 
 let ALL_ROWS = [];
 let VIEW_ROWS = [];
 let CURRENT_PAGE = 1;
+
+// The exact headers as they exist in the Excel file (may contain \n and quotes)
+let EXCEL_HEADERS = null;
+// Map from pretty label -> exact excel header
+let PRETTY_TO_EXACT = new Map();
 
 function setStatus(text, kind="muted") {
   const pill = el("statusPill");
@@ -242,8 +160,18 @@ function setStatus(text, kind="muted") {
   pill.className = "pill " + (kind === "danger" ? "danger" : kind === "ok" ? "ok" : "");
 }
 function setError(msg="") { el("errorBox").textContent = msg; }
+function setWarn(msg="") { el("warnBox").textContent = msg; }
 function logProgress(msg) { el("progress").textContent += msg + "\n"; }
 function clearProgress() { el("progress").textContent = ""; }
+
+function normalizePrettyLabel(header) {
+  // What you display to the user (no newlines, no wrapping quotes, collapse spaces)
+  return String(header ?? "")
+    .replace(/\r?\n/g, " ")
+    .replace(/^\s*"+|"+\s*$/g, "") // remove leading/trailing quotes
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
 function initYears() {
   const box = el("yearsBox");
@@ -261,21 +189,53 @@ function initYears() {
   }
 }
 
-function initColumns() {
+function setColumnsFromExcelHeaders(headers) {
+  // Filter empty headers (you have at least one empty column after Round Number)
+  const clean = headers
+    .map(h => String(h ?? ""))
+    .map(h => h.trim())
+    .filter(h => h.length > 0);
+
+  EXCEL_HEADERS = clean;
+  PRETTY_TO_EXACT = new Map();
   const sel = el("columns");
   sel.innerHTML = "";
-  for (const c of ALL_COLUMNS) {
+
+  for (const exact of clean) {
+    const pretty = normalizePrettyLabel(exact);
+
+    // If duplicates after prettifying, keep them unique by appending a counter
+    let uniquePretty = pretty;
+    let k = 2;
+    while (PRETTY_TO_EXACT.has(uniquePretty)) {
+      uniquePretty = `${pretty} [${k++}]`;
+    }
+
+    PRETTY_TO_EXACT.set(uniquePretty, exact);
+
     const opt = document.createElement("option");
-    opt.value = c;
-    opt.textContent = c;
+    opt.value = uniquePretty;   // user selects pretty label
+    opt.textContent = uniquePretty;
     sel.appendChild(opt);
+  }
+
+  // Auto-select a few common columns if present
+  const auto = new Set([
+    "Investee Company Name",
+    "Investment Date",
+    "Round Number",
+    "Firm Investor Name"
+  ]);
+
+  for (const opt of Array.from(sel.options)) {
+    if (auto.has(opt.value)) opt.selected = true;
   }
 }
 
 function getSelectedYears() {
   return Array.from(el("yearsBox").querySelectorAll("input[type=checkbox]:checked")).map(x => x.value);
 }
-function getSelectedColumns() {
+function getSelectedPrettyColumns() {
   return Array.from(el("columns").selectedOptions).map(o => o.value);
 }
 
@@ -291,23 +251,29 @@ async function githubListYearFiles(owner, repo, year, branch) {
   }
   const items = await res.json();
   if (!Array.isArray(items)) return [];
-
   return items
     .filter(it => it && it.type === "file" && typeof it.name === "string" && it.name.toLowerCase().endsWith(".xlsx"))
     .map(it => ({ name: it.name, download_url: it.download_url, path: it.path }))
     .sort((a,b) => a.name.localeCompare(b.name));
 }
 
-async function fetchAndParseXlsx(downloadUrl) {
+async function fetchWorkbookFirstSheet(downloadUrl) {
   const res = await fetch(downloadUrl);
   if (!res.ok) throw new Error(`Failed to fetch ${downloadUrl}: ${res.status} ${res.statusText}`);
   const ab = await res.arrayBuffer();
   const wb = XLSX.read(ab, { type: "array" });
   const sheetName = wb.SheetNames[0];
-  if (!sheetName) return [];
+  if (!sheetName) return { rows: [], headers: [] };
   const ws = wb.Sheets[sheetName];
-  const json = XLSX.utils.sheet_to_json(ws, { defval: "" });
-  return Array.isArray(json) ? json : [];
+
+  // Header row EXACT
+  const aoa = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
+  const headers = (Array.isArray(aoa) && Array.isArray(aoa[0])) ? aoa[0] : [];
+
+  // Data rows as objects with exact headers
+  const rows = XLSX.utils.sheet_to_json(ws, { defval: "" });
+
+  return { rows: Array.isArray(rows) ? rows : [], headers };
 }
 
 function escapeHtml(s) {
@@ -320,7 +286,7 @@ function escapeHtml(s) {
 }
 
 function renderTable() {
-  const cols = getSelectedColumns();
+  const colsPretty = getSelectedPrettyColumns();
   const pageSize = parseInt(el("pageSize").value, 10) || 50;
   const total = VIEW_ROWS.length;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
@@ -333,7 +299,7 @@ function renderTable() {
   const thead = el("thead");
   thead.innerHTML = "";
   const trh = document.createElement("tr");
-  for (const c of cols) {
+  for (const c of colsPretty) {
     const th = document.createElement("th");
     th.innerHTML = escapeHtml(c);
     trh.appendChild(th);
@@ -344,7 +310,7 @@ function renderTable() {
   tbody.innerHTML = "";
   for (const r of pageRows) {
     const tr = document.createElement("tr");
-    for (const c of cols) {
+    for (const c of colsPretty) {
       const td = document.createElement("td");
       td.innerHTML = escapeHtml(r?.[c] ?? "");
       tr.appendChild(td);
@@ -355,20 +321,20 @@ function renderTable() {
   el("pageInfo").textContent = `Page ${CURRENT_PAGE} / ${totalPages} (showing ${start+1}-${end} of ${total})`;
   el("prevBtn").disabled = (CURRENT_PAGE <= 1);
   el("nextBtn").disabled = (CURRENT_PAGE >= totalPages);
-  el("downloadBtn").disabled = (total === 0 || cols.length === 0);
+  el("downloadBtn").disabled = (total === 0 || colsPretty.length === 0);
 
   el("countPill").textContent = `Rows: ${total.toLocaleString()}`;
 }
 
 function downloadCsv() {
-  const cols = getSelectedColumns();
-  if (!cols.length) return;
+  const colsPretty = getSelectedPrettyColumns();
+  if (!colsPretty.length) return;
 
   const rows = VIEW_ROWS;
   const csvLines = [];
-  csvLines.push(cols.map(c => `"${String(c).replaceAll('"','""')}"`).join(","));
+  csvLines.push(colsPretty.map(c => `"${String(c).replaceAll('"','""')}"`).join(","));
   for (const r of rows) {
-    const line = cols.map(c => `"${String(r?.[c] ?? "").replaceAll('"','""')}"`).join(",");
+    const line = colsPretty.map(c => `"${String(r?.[c] ?? "").replaceAll('"','""')}"`).join(",");
     csvLines.push(line);
   }
   const blob = new Blob([csvLines.join("\n")], { type: "text/csv;charset=utf-8" });
@@ -382,6 +348,7 @@ function downloadCsv() {
 
 async function runQuery() {
   setError("");
+  setWarn("");
   clearProgress();
   setStatus("Working…");
 
@@ -389,16 +356,15 @@ async function runQuery() {
   const repo = el("repo").value.trim();
   const branch = el("branch").value.trim() || "main";
   const years = getSelectedYears();
-  const cols = getSelectedColumns();
   const maxFilesPerYear = Math.max(1, Math.min(24, parseInt(el("maxFilesPerYear").value, 10) || 12));
 
   if (!owner || !repo) { setStatus("Idle"); setError("Please fill in owner and repository."); return; }
   if (!years.length) { setStatus("Idle"); setError("Please select at least one year."); return; }
-  if (!cols.length) { setStatus("Idle"); setError("Please select at least one column."); return; }
 
   ALL_ROWS = [];
   VIEW_ROWS = [];
   CURRENT_PAGE = 1;
+
   el("filesPill").textContent = "Files: 0";
   el("countPill").textContent = "Rows: 0";
 
@@ -422,11 +388,29 @@ async function runQuery() {
         el("filesPill").textContent = `Files: ${fileCount.toLocaleString()}`;
         logProgress(`    Loading ${f.name}…`);
 
-        const rows = await fetchAndParseXlsx(f.download_url);
+        const { rows, headers } = await fetchWorkbookFirstSheet(f.download_url);
 
+        // First loaded file: detect columns and populate dropdown EXACTLY
+        if (!EXCEL_HEADERS) {
+          setColumnsFromExcelHeaders(headers);
+          logProgress(`      Detected ${EXCEL_HEADERS.length} non-empty columns (dropdown updated).`);
+          logProgress(`      Now select columns and click Load & Query again if you want different columns.`);
+        }
+
+        const selectedPretty = getSelectedPrettyColumns();
+        if (!selectedPretty.length) {
+          setStatus("Idle");
+          setError("Select at least one column (dropdown is based on your Excel headers).");
+          return;
+        }
+
+        // Extract using exact headers, but store with pretty labels as keys (for table)
         for (const row of rows) {
           const out = {};
-          for (const c of cols) out[c] = row?.[c] ?? "";
+          for (const pretty of selectedPretty) {
+            const exact = PRETTY_TO_EXACT.get(pretty);
+            out[pretty] = exact ? (row?.[exact] ?? "") : "";
+          }
           ALL_ROWS.push(out);
         }
 
@@ -452,6 +436,7 @@ async function runQuery() {
   }
 }
 
+// Events
 el("runBtn").addEventListener("click", runQuery);
 el("prevBtn").addEventListener("click", () => { CURRENT_PAGE -= 1; renderTable(); });
 el("nextBtn").addEventListener("click", () => { CURRENT_PAGE += 1; renderTable(); });
@@ -479,9 +464,18 @@ el("clearCols").addEventListener("click", () => {
   renderTable();
 });
 
-initYears();
-initColumns();
-renderTable();
+// Init
+(function init() {
+  initYears();
+  // placeholder until first file is loaded
+  const sel = el("columns");
+  sel.innerHTML = "";
+  const opt = document.createElement("option");
+  opt.value = "";
+  opt.textContent = "(Click Load & Query once to detect Excel headers)";
+  sel.appendChild(opt);
+  renderTable();
+})();
 </script>
 
 </body>
