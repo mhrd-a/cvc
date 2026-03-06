@@ -9,40 +9,180 @@
 
   <style>
     :root { color-scheme: light; }
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 16px; }
-    h1 { margin: 0 0 12px; font-size: 20px; }
-    .card { border: 1px solid #ddd; border-radius: 10px; padding: 12px; margin: 12px 0; }
-    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
-    label { font-size: 12px; color: #444; display: block; margin-bottom: 6px; }
-    select, input, button { font: inherit; }
-    select, input[type="number"], input[type="text"] { padding: 8px; border: 1px solid #ccc; border-radius: 8px; }
-    button { padding: 10px 12px; border: 1px solid #222; border-radius: 10px; background: #111; color: #fff; cursor: pointer; }
-    button:disabled { opacity: .6; cursor: not-allowed; }
-    .muted { color: #666; font-size: 12px; }
-    .danger { color: #b00020; }
-    .ok { color: #0a7a28; }
-    .progress { white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: 12px; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #ddd; padding: 6px 8px; font-size: 12px; vertical-align: top; }
-    th { position: sticky; top: 0; background: #fafafa; z-index: 1; }
-    .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-    .pill { display:inline-block; padding: 2px 8px; border:1px solid #ddd; border-radius: 999px; font-size: 12px; background:#fafafa; }
-    .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    @media (max-width: 900px) { .grid2 { grid-template-columns: 1fr; } }
-    .yearsBox { max-height: 180px; overflow: auto; border: 1px solid #eee; border-radius: 10px; padding: 8px; }
-    .yearsBox label { display:flex; gap:8px; align-items:center; margin: 0; padding: 6px 4px; border-radius: 8px; }
-    .yearsBox label:hover { background: #f7f7f7; }
-    .stickyTop { position: sticky; top: 0; background: white; padding-top: 8px; z-index: 2; }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
 
-    /* Keep line breaks exactly as in Excel */
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin: 16px;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: 20px;
+    }
+
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 12px;
+      margin: 12px 0;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    label {
+      font-size: 12px;
+      color: #444;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    select, input, button {
+      font: inherit;
+    }
+
+    select, input[type="number"], input[type="text"] {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    button {
+      padding: 10px 12px;
+      border: 1px solid #222;
+      border-radius: 10px;
+      background: #111;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    .muted {
+      color: #666;
+      font-size: 12px;
+    }
+
+    .danger {
+      color: #b00020;
+    }
+
+    .ok {
+      color: #0a7a28;
+    }
+
+    .progress {
+      white-space: pre-wrap;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border: 1px solid #ddd;
+      border-radius: 999px;
+      font-size: 12px;
+      background: #fafafa;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 900px) {
+      .grid2 { grid-template-columns: 1fr; }
+    }
+
+    .yearsBox {
+      max-height: 180px;
+      overflow: auto;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      padding: 8px;
+    }
+
+    .yearsBox label {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin: 0;
+      padding: 6px 4px;
+      border-radius: 8px;
+    }
+
+    .yearsBox label:hover {
+      background: #f7f7f7;
+    }
+
+    .stickyTop {
+      position: sticky;
+      top: 0;
+      background: white;
+      padding-top: 8px;
+      z-index: 2;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Keep exact Excel formatting in dropdown */
     #columns option {
       white-space: pre-wrap;
     }
 
-    #table th, #table td {
-      white-space: pre-wrap;
-      word-break: break-word;
+    /* IMPORTANT FIX:
+       let the table grow naturally and scroll horizontally,
+       instead of shrinking every column */
+    .tableWrap {
+      max-height: 65vh;
+      overflow: auto;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    #table {
+      border-collapse: collapse;
+      width: max-content;
+      min-width: 100%;
+      table-layout: auto;
+    }
+
+    #table th,
+    #table td {
+      border: 1px solid #ddd;
+      padding: 6px 8px;
+      font-size: 12px;
+      vertical-align: top;
+      white-space: pre;
+      word-break: normal;
+      overflow-wrap: normal;
+      min-width: 120px;
+    }
+
+    #table th {
+      position: sticky;
+      top: 0;
+      background: #fafafa;
+      z-index: 1;
     }
   </style>
 </head>
@@ -75,14 +215,12 @@
 
       <div>
         <label>Columns (exactly as in attached Excel header list)</label>
-        <select id="columns" multiple size="10" style="width: 100%; min-height: 180px;"></select>
+        <select id="columns" multiple size="10" style="width:100%; min-height:220px;"></select>
         <div class="row" style="margin-top:8px;">
           <button id="selectAllCols" type="button">Select all</button>
           <button id="clearCols" type="button" style="background:#fff;color:#111;border:1px solid #ccc;">Clear</button>
         </div>
-        <div class="muted" style="margin-top:6px;">
-          Tip: Ctrl/Cmd for multi-select.
-        </div>
+        <div class="muted" style="margin-top:6px;">Tip: Ctrl/Cmd for multi-select.</div>
       </div>
     </div>
 
@@ -105,10 +243,6 @@
         <input id="maxFilesPerYear" type="number" value="12" min="1" max="24" />
       </div>
     </div>
-
-    <div class="muted" style="margin-top:10px;">
-      Column dropdown is pre-populated from your attached Excel header list and preserves the exact formatting.
-    </div>
   </div>
 
   <div class="card">
@@ -128,7 +262,7 @@
 
     <div class="progress" id="progress"></div>
 
-    <div style="max-height: 65vh; overflow:auto; border:1px solid #eee; border-radius:10px; margin-top:10px;">
+    <div class="tableWrap">
       <table id="table">
         <thead id="thead"></thead>
         <tbody id="tbody"></tbody>
@@ -137,32 +271,26 @@
   </div>
 
 <script>
-/** =========================
- *  Fixed GitHub repo settings
- *  ========================= */
 const GITHUB_OWNER  = "mhrd-a";
 const GITHUB_REPO   = "cvc";
 const GITHUB_BRANCH = "main";
 
-/** =========================
- *  Years
- *  ========================= */
-const YEARS = Array.from({length: 2026 - 2000 + 1}, (_, i) => String(2000 + i));
+/*
+  If needed, change this:
+  "data" => /data/<year>
+  ""     => /<year>
+*/
+const DATA_BASE_PATH = "data";
+
+const YEARS = Array.from({ length: 2026 - 2000 + 1 }, (_, i) => String(2000 + i));
 const el = (id) => document.getElementById(id);
 
 let ALL_ROWS = [];
 let VIEW_ROWS = [];
 let CURRENT_PAGE = 1;
-
-// Exact headers from Excel
-let EXCEL_HEADERS = null;
-// Map exact header -> exact header
+let EXCEL_HEADERS = [];
 let PRETTY_TO_EXACT = new Map();
 
-/** =========================================================
- *  Excel headers (embedded from attached sample header)
- *  EXACTLY preserved as written, including line breaks
- *  ========================================================= */
 const PRESET_EXCEL_HEADERS = [
   "Investee Company Name",
   "Investee Company BEID",
@@ -170,7 +298,6 @@ const PRESET_EXCEL_HEADERS = [
   "Investee Company TRBC Economic Sector",
   "Investment Date",
   "Round Number",
-  "",
   "Firm Investor Name",
   "Firm Investor Organization Id",
   "Fund Investor Name",
@@ -191,79 +318,11 @@ const PRESET_EXCEL_HEADERS = [
   "Investee Company World Sub Location (Branch Office)\n('|')",
   "Investee Company Zip Code (Branch Office)\n('|')",
   "Investee Company City\n('|')",
-  "Investee Company County\n('|')",
-  "Investee Company Metropolitan Location\n('|')",
-  "Investee Company North American Location\n('|')",
   "Investee Company State/Region\n('|')",
   "Investee Company World Location\n('|')",
   "Investee Company World Sub Location\n('|')",
   "Investee Company Street Address\n('|')",
   "Investee Company Zip Code\n('|')",
-  "Investee Company Currency\n('|')",
-  "Investee Company Latest Revenue\n(USD, '|')",
-  "Investee Company Latest Revenue\n(Local, '|')",
-  "Investee Company Revenue Date\n('|')",
-  "Investee Company Latest EBITDA\n(USD, '|')",
-  "Investee Company Latest EBITDA\n(Local, '|')",
-  "Investee Company EBITDA Date\n('|')",
-  "Investee Company Total Assets\n(USD, '|')",
-  "Investee Company Total Assets\n(Local, '|')",
-  "Investee Company Assets Date\n('|')",
-  "Investee Company Total Equity\n(USD, '|')",
-  "Investee Company Total Equity\n(Local, '|')",
-  "Investee Company Equity Date\n('|')",
-  "Investee Company Last Twelve Months Revenue\n(USD, '|')",
-  "Investee Company Last Twelve Months Revenue\n(Local, '|')",
-  "Investee Company Last Twelve Months EBITDA\n(USD, '|')",
-  "Investee Company Last Twelve Months EBITDA\n(Local, '|')",
-  "Investee Company Original Revenue\n(USD, '|')",
-  "Investee Company Original Revenue\n(Local, '|')",
-  "Investee Company Original Revenue Date\n('|')",
-  "Investee Company Original EBITDA\n(USD, '|')",
-  "Investee Company Original EBITDA\n(Local, '|')",
-  "Investee Company Original EBITDA Date\n('|')",
-  "Investee Company Current Total Assets\n(USD, '|')",
-  "Investee Company Current Total Assets\n(Local, '|')",
-  "Investee Company Current Assets Date\n('|')",
-  "Investee Company Original Total Assets\n(USD, '|')",
-  "Investee Company Original Total Assets\n(Local, '|')",
-  "Investee Company Original Assets Date\n('|')",
-  "Investee Company Current Total Equity\n(USD, '|')",
-  "Investee Company Current Total Equity\n(Local, '|')",
-  "Investee Company Current Equity Date\n('|')",
-  "Investee Company Original Total Equity\n(USD, '|')",
-  "Investee Company Original Total Equity\n(Local, '|')",
-  "Investee Company Original Equity Date\n('|')",
-  "Investee Company Enterprise Value\n(USD, '|')",
-  "Investee Company Enterprise Value\n(Local, '|')",
-  "Investee Company Enterprise Value Date\n('|')",
-  "Investee Company Latest Valuation\n(USD, '|')",
-  "Investee Company Latest Valuation\n(Local, '|')",
-  "Investee Company Latest Valuation Date\n('|')",
-  "Investee Company Latest Valuation Type\n('|')",
-  "Investee Company Development Stage\n('|')",
-  "Investee Company Business Description\n('|')",
-  "Investee Company Type\n('|')",
-  "Investee Company TRBC Business Sector\n('|')",
-  "Investee Company TRBC Economic Sector\n('|')",
-  "Investee Company TRBC Industry Group\n('|')",
-  "Investee Company TRBC Industry\n('|')",
-  "Investee Company TRBC Activity\n('|')",
-  "Investee Company TRBC Business Sector Code\n('|')",
-  "Investee Company TRBC Economic Sector Code\n('|')",
-  "Investee Company TRBC Industry Group Code\n('|')",
-  "Investee Company TRBC Industry Code\n('|')",
-  "Investee Company TRBC Activity Code\n('|')",
-  "Investee Company Primary Industry\n('|')",
-  "Investee Company Primary SIC Code\n('|')",
-  "Investee Company Primary NAICS Code\n('|')",
-  "Investee Company Ultimate Parent BEID\n('|')",
-  "Investee Company Ultimate Parent Name\n('|')",
-  "Investee Company Ultimate Parent Nation\n('|')",
-  "Investee Company Public Status\n('|')",
-  "Investee Company Website\n('|')",
-  "Investee Company Founded Year\n('|')",
-  "Investee Company Employees\n('|')",
   "Investor Firm/TRBC Industry Group Name\n('|')",
   "Investor Firm/TRBC Industry Name\n('|')",
   "Investor Firm/TRBC Activity Name\n('|')",
@@ -332,6 +391,29 @@ const PRESET_EXCEL_HEADERS = [
   "Fund Total Value Distributed\n(Local, '|')",
   "Fund Total Value Remaining\n(USD, '|')",
   "Fund Total Value Remaining\n(Local, '|')",
+  "Investee Company Development Stage\n('|')",
+  "Investee Company Business Description\n('|')",
+  "Investee Company Type\n('|')",
+  "Investee Company TRBC Business Sector\n('|')",
+  "Investee Company TRBC Economic Sector\n('|')",
+  "Investee Company TRBC Industry Group\n('|')",
+  "Investee Company TRBC Industry\n('|')",
+  "Investee Company TRBC Activity\n('|')",
+  "Investee Company TRBC Business Sector Code\n('|')",
+  "Investee Company TRBC Economic Sector Code\n('|')",
+  "Investee Company TRBC Industry Group Code\n('|')",
+  "Investee Company TRBC Industry Code\n('|')",
+  "Investee Company TRBC Activity Code\n('|')",
+  "Investee Company Primary Industry\n('|')",
+  "Investee Company Primary SIC Code\n('|')",
+  "Investee Company Primary NAICS Code\n('|')",
+  "Investee Company Ultimate Parent BEID\n('|')",
+  "Investee Company Ultimate Parent Name\n('|')",
+  "Investee Company Ultimate Parent Nation\n('|')",
+  "Investee Company Public Status\n('|')",
+  "Investee Company Website\n('|')",
+  "Investee Company Founded Year\n('|')",
+  "Investee Company Employees\n('|')",
   "Investee Company Total Funding\n(USD, '|')",
   "Investee Company Total Funding\n(Local, '|')",
   "Investee Company Total Funding Currency\n('|')",
@@ -379,6 +461,15 @@ const PRESET_EXCEL_HEADERS = [
   "Investor Firm Employees\n('|')",
   "Investor Firm Website\n('|')",
   "Investor Firm Founded Year\n('|')",
+  "Investor Firm Country\n('|')",
+  "Investor Firm State/Region\n('|')",
+  "Investor Firm City\n('|')",
+  "Investor Firm World Location\n('|')",
+  "Investor Firm World Sub Location\n('|')",
+  "Investor Firm Street Address\n('|')",
+  "Investor Firm Zip Code\n('|')",
+  "Investor Firm Area Code Number\n('|')",
+  "Investor Firm Area Code\n('|')",
   "Investor Firm Primary Industry\n('|')",
   "Investor Firm Primary SIC Code\n('|')",
   "Investor Firm Primary NAICS Code\n('|')",
@@ -396,6 +487,19 @@ const PRESET_EXCEL_HEADERS = [
   "Fund Organization Id\n('|')",
   "Fund Parent Organization Id\n('|')",
   "Fund Ultimate Parent Organization Id\n('|')",
+  "Fund Type\n('|')",
+  "Fund Status\n('|')",
+  "Fund Currency\n('|')",
+  "Fund Vintage Year\n('|')",
+  "Fund Country\n('|')",
+  "Fund State/Region\n('|')",
+  "Fund City\n('|')",
+  "Fund World Location\n('|')",
+  "Fund World Sub Location\n('|')",
+  "Fund Street Address\n('|')",
+  "Fund Zip Code\n('|')",
+  "Fund Area Code Number\n('|')",
+  "Fund Area Code\n('|')",
   "Tertiary Security Type\n('|')",
   "Lastest Round flag in a Company\n('|')",
   "Estimated Buyout Value\n(USD, '|')",
@@ -403,29 +507,26 @@ const PRESET_EXCEL_HEADERS = [
   "PE Deal Round Status"
 ];
 
-/** =========================
- *  Default selected columns
- *  based on exact headers in attached file
- *  ========================= */
 const DEFAULT_COLUMNS_REQUESTED = [
   "Investee Company Name",
   "Investee Company Nation",
   "Investee Company TRBC Economic Sector",
   "Investment Date",
-  "Firm Investor Name",
-  "Fund Investor Name",
   "Investor Equity Total\n(USD, Millions)",
   "Deal Value\n(USD, Millions)",
-  "Deal Rank Value\n(USD, Millions)"
+  "Deal Rank Value\n(USD, Millions)",
+  "Firm Investor Name",
+  "Fund Investor Name"
 ];
 
-function setStatus(text, kind="muted") {
+function setStatus(text, kind = "muted") {
   const pill = el("statusPill");
   pill.textContent = text;
   pill.className = "pill " + (kind === "danger" ? "danger" : kind === "ok" ? "ok" : "");
 }
-function setError(msg="") { el("errorBox").textContent = msg; }
-function setWarn(msg="") { el("warnBox").textContent = msg; }
+
+function setError(msg = "") { el("errorBox").textContent = msg; }
+function setWarn(msg = "") { el("warnBox").textContent = msg; }
 function logProgress(msg) { el("progress").textContent += msg + "\n"; }
 function clearProgress() { el("progress").textContent = ""; }
 
@@ -438,9 +539,11 @@ function initYears() {
     cb.type = "checkbox";
     cb.value = y;
     line.appendChild(cb);
+
     const span = document.createElement("span");
     span.textContent = y;
     line.appendChild(span);
+
     box.appendChild(line);
   }
 }
@@ -448,7 +551,7 @@ function initYears() {
 function setColumnsFromExcelHeaders(headers) {
   const clean = headers
     .map(h => String(h ?? ""))
-    .filter(h => h.trim().length > 0);
+    .filter(h => h.length > 0);
 
   EXCEL_HEADERS = clean;
   PRETTY_TO_EXACT = new Map();
@@ -458,27 +561,28 @@ function setColumnsFromExcelHeaders(headers) {
 
   for (const header of clean) {
     PRETTY_TO_EXACT.set(header, header);
-
     const opt = document.createElement("option");
     opt.value = header;
     opt.textContent = header;
     sel.appendChild(opt);
   }
 
-  const wanted = new Set(DEFAULT_COLUMNS_REQUESTED);
+  const available = new Set(clean);
+  const missing = [];
 
   for (const opt of Array.from(sel.options)) {
-    if (wanted.has(opt.value)) {
+    if (DEFAULT_COLUMNS_REQUESTED.includes(opt.value)) {
       opt.selected = true;
     }
   }
 
-  const available = new Set(Array.from(sel.options).map(o => o.value));
-  const missing = DEFAULT_COLUMNS_REQUESTED.filter(c => !available.has(c));
+  for (const c of DEFAULT_COLUMNS_REQUESTED) {
+    if (!available.has(c)) missing.push(c);
+  }
 
   if (missing.length) {
     setWarn(
-      `Note: ${missing.length} requested default column(s) were not found exactly in the attached header list, so they were skipped:\n` +
+      "These requested default columns were not found exactly and were skipped:\n" +
       missing.join(" | ")
     );
   } else {
@@ -494,24 +598,42 @@ function getSelectedPrettyColumns() {
   return Array.from(el("columns").selectedOptions).map(o => o.value);
 }
 
+function buildYearPath(year) {
+  return DATA_BASE_PATH ? `${DATA_BASE_PATH}/${year}` : `${year}`;
+}
+
 async function githubListYearFiles(year) {
+  const yearPath = buildYearPath(year);
+
   const url =
     `https://api.github.com/repos/${encodeURIComponent(GITHUB_OWNER)}/${encodeURIComponent(GITHUB_REPO)}` +
-    `/contents/data/${encodeURIComponent(year)}?ref=${encodeURIComponent(GITHUB_BRANCH)}`;
+    `/contents/${yearPath.split("/").map(encodeURIComponent).join("/")}?ref=${encodeURIComponent(GITHUB_BRANCH)}`;
 
-  const res = await fetch(url, { headers: { "Accept": "application/vnd.github+json" } });
+  const res = await fetch(url, {
+    headers: { "Accept": "application/vnd.github+json" }
+  });
+
+  if (res.status === 404) {
+    return { files: [], missingFolder: true, yearPath };
+  }
+
   if (!res.ok) {
     const txt = await res.text().catch(() => "");
     throw new Error(`GitHub API error for year ${year}: ${res.status} ${txt}`);
   }
 
   const items = await res.json();
-  if (!Array.isArray(items)) return [];
 
-  return items
+  if (!Array.isArray(items)) {
+    return { files: [], missingFolder: false, yearPath };
+  }
+
+  const files = items
     .filter(it => it && it.type === "file" && typeof it.name === "string" && it.name.toLowerCase().endsWith(".xlsx"))
     .map(it => ({ name: it.name, download_url: it.download_url, path: it.path }))
     .sort((a, b) => a.name.localeCompare(b.name));
+
+  return { files, missingFolder: false, yearPath };
 }
 
 async function fetchWorkbookFirstSheet(downloadUrl) {
@@ -573,11 +695,12 @@ function renderTable() {
     tbody.appendChild(tr);
   }
 
-  el("pageInfo").textContent = `Page ${CURRENT_PAGE} / ${totalPages} (showing ${total === 0 ? 0 : start + 1}-${end} of ${total})`;
+  el("pageInfo").textContent =
+    `Page ${CURRENT_PAGE} / ${totalPages} (showing ${total === 0 ? 0 : start + 1}-${end} of ${total})`;
+
   el("prevBtn").disabled = (CURRENT_PAGE <= 1);
   el("nextBtn").disabled = (CURRENT_PAGE >= totalPages);
   el("downloadBtn").disabled = (total === 0 || colsPretty.length === 0);
-
   el("countPill").textContent = `Rows: ${total.toLocaleString()}`;
 }
 
@@ -585,13 +708,11 @@ function downloadCsv() {
   const colsPretty = getSelectedPrettyColumns();
   if (!colsPretty.length) return;
 
-  const rows = VIEW_ROWS;
   const csvLines = [];
+  csvLines.push(colsPretty.map(c => `"${String(c).replaceAll('"', '""')}"`).join(","));
 
-  csvLines.push(colsPretty.map(c => `"${String(c).replaceAll('"','""')}"`).join(","));
-
-  for (const r of rows) {
-    const line = colsPretty.map(c => `"${String(r?.[c] ?? "").replaceAll('"','""')}"`).join(",");
+  for (const r of VIEW_ROWS) {
+    const line = colsPretty.map(c => `"${String(r?.[c] ?? "").replaceAll('"', '""')}"`).join(",");
     csvLines.push(line);
   }
 
@@ -628,19 +749,27 @@ async function runQuery() {
   ALL_ROWS = [];
   VIEW_ROWS = [];
   CURRENT_PAGE = 1;
-
   el("filesPill").textContent = "Files: 0";
   el("countPill").textContent = "Rows: 0";
 
   let fileCount = 0;
+  const skippedYears = [];
 
   try {
     for (const y of years) {
       logProgress(`Listing files for year ${y}…`);
-      const files = await githubListYearFiles(y);
+      const result = await githubListYearFiles(y);
+
+      if (result.missingFolder) {
+        logProgress(`  Year ${y} folder not found at /${result.yearPath} - skipped`);
+        skippedYears.push(y);
+        continue;
+      }
+
+      const files = result.files;
 
       if (!files.length) {
-        logProgress(`  (No .xlsx files found in /data/${y}/)`);
+        logProgress(`  No .xlsx files found in /${result.yearPath}`);
         continue;
       }
 
@@ -666,16 +795,26 @@ async function runQuery() {
         logProgress(`      +${rows.length} rows`);
         el("countPill").textContent = `Rows: ${ALL_ROWS.length.toLocaleString()}`;
       }
+
       logProgress("");
     }
 
     VIEW_ROWS = ALL_ROWS;
-    setStatus("Done", "ok");
     renderTable();
 
-    if (ALL_ROWS.length === 0) {
-      setError("No rows were loaded. Check that /data/<year>/ contains .xlsx files in the repo.");
+    if (skippedYears.length > 0) {
+      setWarn(`Skipped year folders not found in repo: ${skippedYears.join(", ")}`);
+    } else {
+      setWarn("");
     }
+
+    if (ALL_ROWS.length === 0) {
+      setStatus("Done");
+      setError(`No rows were loaded. Check your repo path. Current path pattern is /${DATA_BASE_PATH}/<year>`);
+    } else {
+      setStatus("Done", "ok");
+    }
+
   } catch (err) {
     console.error(err);
     setStatus("Error", "danger");
@@ -685,7 +824,6 @@ async function runQuery() {
   }
 }
 
-// Events
 el("runBtn").addEventListener("click", runQuery);
 el("prevBtn").addEventListener("click", () => { CURRENT_PAGE -= 1; renderTable(); });
 el("nextBtn").addEventListener("click", () => { CURRENT_PAGE += 1; renderTable(); });
@@ -702,20 +840,17 @@ el("clearYears").addEventListener("click", () => {
 });
 
 el("selectAllCols").addEventListener("click", () => {
-  const sel = el("columns");
-  Array.from(sel.options).forEach(o => o.selected = true);
+  Array.from(el("columns").options).forEach(o => o.selected = true);
   CURRENT_PAGE = 1;
   renderTable();
 });
 
 el("clearCols").addEventListener("click", () => {
-  const sel = el("columns");
-  Array.from(sel.options).forEach(o => o.selected = false);
+  Array.from(el("columns").options).forEach(o => o.selected = false);
   CURRENT_PAGE = 1;
   renderTable();
 });
 
-// Init
 (function init() {
   el("repoPill").textContent = `${GITHUB_OWNER} / ${GITHUB_REPO} @ ${GITHUB_BRANCH}`;
   initYears();
