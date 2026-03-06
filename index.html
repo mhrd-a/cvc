@@ -9,131 +9,42 @@
 
   <style>
     :root { color-scheme: light; }
-    body {
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      margin: 16px;
-    }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 16px; }
     h1 { margin: 0 0 12px; font-size: 20px; }
-    .card {
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      padding: 12px;
-      margin: 12px 0;
-    }
-    .row {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      align-items: flex-end;
-    }
-    label {
-      font-size: 12px;
-      color: #444;
-      display: block;
-      margin-bottom: 6px;
-    }
-    select, input, button {
-      font: inherit;
-    }
-    select, input[type="number"], input[type="text"] {
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
-    button {
-      padding: 10px 12px;
-      border: 1px solid #222;
-      border-radius: 10px;
-      background: #111;
-      color: #fff;
-      cursor: pointer;
-    }
-    button:disabled {
-      opacity: .6;
-      cursor: not-allowed;
-    }
+    .card { border: 1px solid #ddd; border-radius: 10px; padding: 12px; margin: 12px 0; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+    label { font-size: 12px; color: #444; display: block; margin-bottom: 6px; }
+    select, input, button { font: inherit; }
+    select, input[type="number"], input[type="text"] { padding: 8px; border: 1px solid #ccc; border-radius: 8px; }
+    button { padding: 10px 12px; border: 1px solid #222; border-radius: 10px; background: #111; color: #fff; cursor: pointer; }
+    button:disabled { opacity: .6; cursor: not-allowed; }
     .muted { color: #666; font-size: 12px; }
     .danger { color: #b00020; }
     .ok { color: #0a7a28; }
-    .progress {
-      white-space: pre-wrap;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size: 12px;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 6px 8px;
-      font-size: 12px;
-      vertical-align: top;
-    }
-    th {
-      position: sticky;
-      top: 0;
-      background: #fafafa;
-      z-index: 1;
+    .progress { white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: 12px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 6px 8px; font-size: 12px; vertical-align: top; }
+    th { position: sticky; top: 0; background: #fafafa; z-index: 1; }
+    .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .pill { display:inline-block; padding: 2px 8px; border:1px solid #ddd; border-radius: 999px; font-size: 12px; background:#fafafa; }
+    .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 900px) { .grid2 { grid-template-columns: 1fr; } }
+    .yearsBox { max-height: 180px; overflow: auto; border: 1px solid #eee; border-radius: 10px; padding: 8px; }
+    .yearsBox label { display:flex; gap:8px; align-items:center; margin: 0; padding: 6px 4px; border-radius: 8px; }
+    .yearsBox label:hover { background: #f7f7f7; }
+    .stickyTop { position: sticky; top: 0; background: white; padding-top: 8px; z-index: 2; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+
+    /* IMPORTANT:
+       Keep line breaks exactly as in Excel inside the column list */
+    #columns option {
       white-space: pre-wrap;
     }
-    td {
+
+    /* Also keep line breaks in table headers/cells if selected */
+    #table th, #table td {
       white-space: pre-wrap;
-    }
-    .controls {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .pill {
-      display:inline-block;
-      padding: 2px 8px;
-      border:1px solid #ddd;
-      border-radius: 999px;
-      font-size: 12px;
-      background:#fafafa;
-    }
-    .grid2 {
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    @media (max-width: 900px) {
-      .grid2 { grid-template-columns: 1fr; }
-    }
-    .yearsBox, .columnsBox {
-      max-height: 220px;
-      overflow: auto;
-      border: 1px solid #eee;
-      border-radius: 10px;
-      padding: 8px;
-    }
-    .yearsBox label, .columnsBox label {
-      display:flex;
-      gap:8px;
-      align-items:flex-start;
-      margin: 0;
-      padding: 6px 4px;
-      border-radius: 8px;
-    }
-    .yearsBox label:hover, .columnsBox label:hover {
-      background: #f7f7f7;
-    }
-    .columnsBox .txt {
-      white-space: pre-wrap;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      line-height: 1.25;
-    }
-    .stickyTop {
-      position: sticky;
-      top: 0;
-      background: white;
-      padding-top: 8px;
-      z-index: 2;
-    }
-    .mono {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      word-break: break-word;
     }
   </style>
 </head>
@@ -165,14 +76,14 @@
       </div>
 
       <div>
-        <label>Columns (exactly like sample file)</label>
-        <div class="columnsBox" id="columnsBox"></div>
+        <label>Columns (exactly as in attached Excel header list)</label>
+        <select id="columns" multiple size="10" style="width: 100%; min-height: 180px;"></select>
         <div class="row" style="margin-top:8px;">
           <button id="selectAllCols" type="button">Select all</button>
           <button id="clearCols" type="button" style="background:#fff;color:#111;border:1px solid #ccc;">Clear</button>
         </div>
         <div class="muted" style="margin-top:6px;">
-          The headers below preserve the sample file’s exact text, including blank headers and line breaks.
+          Tip: Ctrl/Cmd for multi-select.
         </div>
       </div>
     </div>
@@ -198,7 +109,7 @@
     </div>
 
     <div class="muted" style="margin-top:10px;">
-      Owner, repository, and branch are fixed in the code, so the page does not ask for them.
+      Column dropdown is pre-populated from your attached Excel header list and preserves the exact formatting.
     </div>
   </div>
 
@@ -228,30 +139,32 @@
   </div>
 
 <script>
-/* =========================
-   Fixed GitHub repo settings
-   ========================= */
+/** =========================
+ *  Fixed GitHub repo settings
+ *  ========================= */
 const GITHUB_OWNER  = "mhrd-a";
 const GITHUB_REPO   = "cvc";
 const GITHUB_BRANCH = "main";
 
-/* =========================
-   Years
-   ========================= */
-const YEARS = Array.from({ length: 2026 - 2000 + 1 }, (_, i) => String(2000 + i));
+/** =========================
+ *  Years
+ *  ========================= */
+const YEARS = Array.from({length: 2026 - 2000 + 1}, (_, i) => String(2000 + i));
 const el = (id) => document.getElementById(id);
 
 let ALL_ROWS = [];
 let VIEW_ROWS = [];
 let CURRENT_PAGE = 1;
 
-let EXCEL_HEADERS = [];
-let VALUE_TO_EXACT = new Map();
+// Exact headers from Excel
+let EXCEL_HEADERS = null;
+// Map exact header -> exact header
+let PRETTY_TO_EXACT = new Map();
 
-/* =========================================================
-   Headers from the sample file
-   They are kept exactly as provided, including blank header.
-   ========================================================= */
+/** =========================================================
+ *  Excel headers (embedded from attached sample header)
+ *  EXACTLY preserved as written, including line breaks
+ *  ========================================================= */
 const PRESET_EXCEL_HEADERS = [
   "Investee Company Name",
   "Investee Company BEID",
@@ -259,7 +172,6 @@ const PRESET_EXCEL_HEADERS = [
   "Investee Company TRBC Economic Sector",
   "Investment Date",
   "Round Number",
-  "",
   "Firm Investor Name",
   "Firm Investor Organization Id",
   "Fund Investor Name",
@@ -269,260 +181,226 @@ const PRESET_EXCEL_HEADERS = [
   "Disclosed Debt Contribution\n(USD, Millions)",
   "Deal Value\n(USD, Millions)",
   "Deal Rank Value\n(USD, Millions)",
-  "Firm Investors Type\n('|' )",
-  "Investee Company Area Code Number\n('|' )",
-  "Investee Company Area Code\n('|' )",
-  "Investee Company Branch City\n('|' )",
-  "Investee Company Nation (Branch Office)\n('|' )",
-  "Investee Company State/Region (Branch Office)\n('|' )",
-  "Investee Company Branch Street Address\n('|' )",
-  "Investee Company World Location (Branch Office)\n('|' )",
-  "Investee Company World Sub Location (Branch Office)\n('|' )",
-  "Investee Company Zip Code (Branch Office)\n('|' )",
-  "Investee Company City\n('|' )",
-  "Investee Company County\n('|' )",
-  "Investee Company Metropolitan Location\n('|' )",
-  "Investee Company North American Location\n('|' )",
-  "Investee Company State/Region\n('|' )",
-  "Investee Company Street Address\n('|' )",
-  "Investee Company World Location\n('|' )",
-  "Investee Company World Sub Location\n('|' )",
-  "Investee Company Zip Code\n('|' )",
-  "Investee Primary NAICS 2007\n('|' )",
-  "Investee Primary NAICS 2022\n('|' )",
-  "Investee Primary SIC\n('|' )",
-  "Investee Company Primary Technology Application\n('|' )",
-  "Investee Company Primary VE Industry Sub-Group 2\n('|' )",
-  "Investee Company Primary VE Industry Sub-Group 1\n('|' )",
-  "Investee Company Primary VE Minor Group\n('|' )",
-  "Investee Company Primary VE Major Group\n('|' )",
-  "Investee Company Primary VE Industry Class\n('|' )",
-  "Investee Company Primary VEIC\n('|' )",
-  "Investee Company Real Estate Asset Primary Sector\n('|' )",
-  "Investee Company TRBC Industry Group\n('|' )",
-  "Investee Company TRBC Industry\n('|' )",
-  "Investee Company TRBC Business Sector\n('|' )",
-  "Investee Company TRBC Activity\n('|' )",
-  "Investee Company NAICS 2007\n('|' )",
-  "Investee Company NAICS 2022\n('|' )",
-  "Investee SIC\n('|' )",
-  "Investee Company Technology Application\n('|' )",
-  "Investee Company VE Primary Industry Sub-Group 3\n('|' )",
-  "Investee Company VE Industry Class\n('|' )",
-  "Investee Company VE Major Group\n('|' )",
-  "Investee Company VE Minor Group\n('|' )",
-  "Investee Company VE Industry Sub-Group 1\n('|' )",
-  "Investee Company VE Industry Sub-Group 2\n('|' )",
-  "Investee Company Total Funding Received To Date\n(USD, '|' )",
-  "Investee Company First Investment Received Date\n('|' )",
-  "Investee Company Last Investment Received Date\n('|' )",
-  "Investee Company Number Of Investments Received To Date\n('|' )",
-  "Investee Company Number Of Investor Funds To Date\n('|' )",
-  "Investee Company Number Of Investor Firms To Date\n('|' )",
-  "Investee Company is Sustainable\n('|' )",
-  "Deal Age At Financing In Months\n('|' )",
-  "Investee Company Alias Name\n('|' )",
-  "Investee Company Fax Number (Branch Office)\n('|' )",
-  "Investee Company Phone Number (Branch Office)\n('|' )",
-  "Investee Company Short Business Description\n('|' )",
-  "Investee Company Long Business Description\n('|' )",
-  "Investee Company Current Public Status\n('|' )",
-  "Investee Company Current Operating Stage\n('|' )",
-  "Investee Company Founded Date\n('|' )",
-  "Investee Company Fax Number\n('|' )",
-  "Investee Company IPO Date\n('|' )",
-  "Real Estate Properties\n('|' )",
-  "Investee Company Primary Customer Type\n('|' )",
-  "Investee Portfolio Status\n('|' )",
-  "Investee Company Phone Number\n('|' )",
-  "Investee Company PermID\n('|' )",
-  "Investee Company Number Of Employees Most Recent Year End\n('|' )",
-  "Investee Company Status\n('|' )",
-  "Investee Company Website\n('|' )",
-  "Disclosed Post Round Company Valuation\n(USD, '|' )",
-  "Post Round Company Valuation Direction\n('|' )",
-  "Investee Company All Investor Firms\n('|' )",
-  "Investee Company All Investor Funds\n('|' )",
-  "Investee Company Current Investor Firms\n('|' )",
-  "Investee Company Current Investor Funds\n('|' )",
-  "Investee Company Historical Investor Firms\n('|' )",
-  "Investee Company Historical Investor Funds\n('|' )",
-  "Firm Investors Area Code Number\n('|' )",
-  "Firm Investors Area Code\n('|' )",
-  "Firm Investors County\n('|' )",
-  "Firm Investors City\n('|' )",
-  "Firm Investors Metropolitan Location\n('|' )",
-  "Firm Investors Nation\n('|' )",
-  "Firm Investors North American Location\n('|' )",
-  "Firm Investors State/Region\n('|' )",
-  "Firm Investors Street Address\n('|' )",
-  "Firm Investors World Location\n('|' )",
-  "Firm Investors World Sub Location\n('|' )",
-  "Firm Investors Zip Code\n('|' )",
-  "Firm Investors First Investment Date\n('|' )",
-  "Firm Investors Industry Focus\n('|' )",
-  "Firm Investors Last Investment Date\n('|' )",
-  "Firm Investors Total Number of Companies Invested\n('|' )",
-  "Firm Investors Total Number Of Deals\n('|' )",
-  "Firm Investors Total Estimated Equity Invested To Date\n(USD, '|' )",
-  "Firm Investors Affiliations\n('|' )",
-  "Firm Investors Capital Under Management\n(USD, '|' )",
-  "Firm Investors Founded Year\n('|' )",
-  "Firm Investors Founded Date\n('|' )",
-  "Firm Investors Fax Number\n('|' )",
-  "Firm Investors Investment Type\n('|' )",
-  "Firm Investors Latest Fund Year\n('|' )",
-  "Firm Investors Latest Fund Closing Date\n('|' )",
-  "Firm Investors Latest Fund Business Entity Id\n('|' )",
-  "Firm Investors Latest Fund Name\n('|' )",
-  "Firm Investors Latest Fund Size\n(USD, '|' )",
-  "No. of Funds Managed by Firm Investor\n('|' )",
-  "Firm Investors Phone Number\n('|' )",
-  "Firm Investors Preferred Maximum Investment\n(USD, '|' )",
-  "Firm Investors Preferred Minimum Investment\n(USD, '|' )",
-  "Firm Investors Status\n('|' )",
-  "Firm Investors Website\n('|' )",
-  "Firm Investors Geography Investment Preference\n('|' )",
-  "Firm Investors Industry Investment Preference\n('|' )",
-  "Firm Investors Stage Investment Preference\n('|' )",
-  "Firm Investors Asset Under Management\n(USD)",
-  "Fund Investors Area Code\n('|' )",
-  "Fund Investors Area Code Number\n('|' )",
-  "Fund Investors County\n('|' )",
-  "Fund Investors City\n('|' )",
-  "Fund Investors North American Location\n('|' )",
-  "Fund Investors Nation\n('|' )",
-  "Fund Investors Metropolitan Location\n('|' )",
-  "Fund Investors State/Region\n('|' )",
-  "Fund Investors Street Address\n('|' )",
-  "Fund Investors World Sub Location\n('|' )",
-  "Fund Investors World Location\n('|' )",
-  "Fund Investors Zip Code\n('|' )",
-  "Fund Investors Total Estimated Equity Invested To Date\n(USD, '|' )",
-  "Fund Investors First Investment Date\n('|' )",
-  "Fund Investors Investor Type\n('|' )",
-  "Fund Investors Investment Focus\n('|' )",
-  "Fund Investors Last Investment Date\n('|' )",
-  "Total Number of Companies Invested in by Fund Investor\n('|' )",
-  "Fund Investors Total Number Of Companies Invested In\n('|' )",
-  "Fund Investors Total Number Of Deals\n('|' )",
-  "Fund Investors Stage\n('|' )",
-  "Lead Investor\n('|' )",
-  "Fund Investors Founded Date\n('|' )",
-  "Fund Investors Phone\n('|' )",
-  "Fund Investors Status\n('|' )",
-  "Fund Investors Sequence\n('|' )",
-  "Fund Investors Size\n(USD, '|' )",
-  "Fund Investors Size Target\n(USD, '|' )",
-  "Fund Investors Investment Status\n('|' )",
-  "Fund Investors Type\n('|' )",
-  "Fund Investors Fund Year\n('|' )",
-  "Fund Investors Geography Investment Preference\n('|' )",
-  "Fund Investors Industry Investment Preference\n('|' )",
-  "Fund Investors Stage Investment Preference\n('|' )",
-  "Company Legal Advisor on Round\n('|' )",
-  "Investor's Legal Advisor on Round\n('|' )",
-  "Investor's Parent Legal Advisor on Round Code\n('|' )",
-  "Company's Parent Legal Advisor on Round Code\n('|' )",
-  "Company's Parent Legal Advisor on Round\n('|' )",
-  "Investor's Parent Legal Advisor on Round\n('|' )",
-  "Investor's Legal Advisor Parent Nation\n('|' )",
-  "Company's Legal Advisor Parent Nation\n('|' )",
-  "Investor's Legal Advisor Nation\n('|' )",
-  "Company's Legal Advisor Nation\n('|' )",
-  "Deal Location City\n('|' )",
-  "Deal Location Country Id\n('|' )",
-  "Deal Location Postal Code\n('|' )",
-  "Deal Location State Code\n('|' )",
-  "Deal Location Street Address\n('|' )",
-  "Deal Location World Region\n('|' )",
-  "Deal Location World Sub Region\n('|' )",
-  "PE Effective Date\n(:, '|' )",
-  "Venture Capital Deals\n('|' )",
-  "Buyout Deals\n('|' )",
-  "Disclosed Fund Debt Contribution\n(USD, '|' )",
-  "Disclosed Equity Contribution\n(USD, '|' )",
-  "Fund Investors Portfolio Company Participation Rounds\n('|' )",
-  "Corporate Investment\n('|' )",
-  "Pure Venture Capital Deals\n('|' )",
-  "Buyout Deals\n('|' )",
-  "Venture Capital Deals\n('|' )",
-  "VC Reporter Deals\n('|' )",
-  "New Or Follow on Investment Indicator\n('|' )",
-  "Deal Post Round Security Issued\n('|' )",
-  "Primary Security Type\n('|' )",
-  "Deal Round Financing Stage Code 1\n('|' )",
-  "Deal Round Financing Stage Code 2\n('|' )",
-  "Number Of Funds\n('|' )",
-  "Round Company Operating Stage\n('|' )",
-  "Secondary Security Type\n('|' )",
-  "Tertiary Security Type\n('|' )",
-  "Lastest Round flag in a Company\n('|' )",
-  "Estimated Buyout Value\n(USD, '|' )",
-  "Estimated Rank Value\n(USD, '|' )",
+  "Firm Investors Type\n('|')",
+  "Investee Company Area Code Number\n('|')",
+  "Investee Company Area Code\n('|')",
+  "Investee Company Branch City\n('|')",
+  "Investee Company Nation (Branch Office)\n('|')",
+  "Investee Company State/Region (Branch Office)\n('|')",
+  "Investee Company Branch Street Address\n('|')",
+  "Investee Company World Location (Branch Office)\n('|')",
+  "Investee Company World Sub Location (Branch Office)\n('|')",
+  "Investee Company Zip Code (Branch Office)\n('|')",
+  "Investee Company City\n('|')",
+  "Investee Company State/Region\n('|')",
+  "Investee Company World Location\n('|')",
+  "Investee Company World Sub Location\n('|')",
+  "Investee Company Street Address\n('|')",
+  "Investee Company Zip Code\n('|')",
+  "Investor Firm/TRBC Industry Group Name\n('|')",
+  "Investor Firm/TRBC Industry Name\n('|')",
+  "Investor Firm/TRBC Activity Name\n('|')",
+  "Investor Firm/TRBC Economic Sector Name\n('|')",
+  "Investor Firm/TRBC Business Sector Name\n('|')",
+  "Investor Firm/TRBC Industry Group Code\n('|')",
+  "Investor Firm/TRBC Industry Code\n('|')",
+  "Investor Firm/TRBC Activity Code\n('|')",
+  "Investor Firm/TRBC Economic Sector Code\n('|')",
+  "Investor Firm/TRBC Business Sector Code\n('|')",
+  "Investor Firm Country\n('|')",
+  "Investor Firm State/Region\n('|')",
+  "Investor Firm City\n('|')",
+  "Investor Firm World Location\n('|')",
+  "Investor Firm World Sub Location\n('|')",
+  "Investor Firm Street Address\n('|')",
+  "Investor Firm Zip Code\n('|')",
+  "Investor Firm Area Code Number\n('|')",
+  "Investor Firm Area Code\n('|')",
+  "Fund TRBC Industry Group Name\n('|')",
+  "Fund TRBC Industry Name\n('|')",
+  "Fund TRBC Activity Name\n('|')",
+  "Fund TRBC Economic Sector Name\n('|')",
+  "Fund TRBC Business Sector Name\n('|')",
+  "Fund TRBC Industry Group Code\n('|')",
+  "Fund TRBC Industry Code\n('|')",
+  "Fund TRBC Activity Code\n('|')",
+  "Fund TRBC Economic Sector Code\n('|')",
+  "Fund TRBC Business Sector Code\n('|')",
+  "Fund Country\n('|')",
+  "Fund State/Region\n('|')",
+  "Fund City\n('|')",
+  "Fund World Location\n('|')",
+  "Fund World Sub Location\n('|')",
+  "Fund Street Address\n('|')",
+  "Fund Zip Code\n('|')",
+  "Fund Area Code Number\n('|')",
+  "Fund Area Code\n('|')",
+  "Fund Vintage Year\n('|')",
+  "Fund Type\n('|')",
+  "Fund Status\n('|')",
+  "Fund Currency\n('|')",
+  "Fund Cumulative Invested\n(USD, '|')",
+  "Fund Cumulative Invested\n(Local, '|')",
+  "Fund Capital Under Management\n(USD, '|')",
+  "Fund Capital Under Management\n(Local, '|')",
+  "Fund Commitments\n(USD, '|')",
+  "Fund Commitments\n(Local, '|')",
+  "Fund Commitment Offset\n(USD, '|')",
+  "Fund Commitment Offset\n(Local, '|')",
+  "Fund Raise Amount\n(USD, '|')",
+  "Fund Raise Amount\n(Local, '|')",
+  "Fund IRR\n('|')",
+  "Fund Net IRR\n('|')",
+  "Fund Investment Multiple\n('|')",
+  "Fund Net Investment Multiple\n('|')",
+  "Fund Total Value\n(USD, '|')",
+  "Fund Total Value\n(Local, '|')",
+  "Fund Paid In\n(USD, '|')",
+  "Fund Paid In\n(Local, '|')",
+  "Fund Distributed\n(USD, '|')",
+  "Fund Distributed\n(Local, '|')",
+  "Fund Total Value Paid In\n(USD, '|')",
+  "Fund Total Value Paid In\n(Local, '|')",
+  "Fund Total Value Distributed\n(USD, '|')",
+  "Fund Total Value Distributed\n(Local, '|')",
+  "Fund Total Value Remaining\n(USD, '|')",
+  "Fund Total Value Remaining\n(Local, '|')",
+  "Investee Company Development Stage\n('|')",
+  "Investee Company Business Description\n('|')",
+  "Investee Company Type\n('|')",
+  "Investee Company TRBC Business Sector\n('|')",
+  "Investee Company TRBC Economic Sector\n('|')",
+  "Investee Company TRBC Industry Group\n('|')",
+  "Investee Company TRBC Industry\n('|')",
+  "Investee Company TRBC Activity\n('|')",
+  "Investee Company TRBC Business Sector Code\n('|')",
+  "Investee Company TRBC Economic Sector Code\n('|')",
+  "Investee Company TRBC Industry Group Code\n('|')",
+  "Investee Company TRBC Industry Code\n('|')",
+  "Investee Company TRBC Activity Code\n('|')",
+  "Investee Company Primary Industry\n('|')",
+  "Investee Company Primary SIC Code\n('|')",
+  "Investee Company Primary NAICS Code\n('|')",
+  "Investee Company Ultimate Parent BEID\n('|')",
+  "Investee Company Ultimate Parent Name\n('|')",
+  "Investee Company Ultimate Parent Nation\n('|')",
+  "Investee Company Public Status\n('|')",
+  "Investee Company Website\n('|')",
+  "Investee Company Founded Year\n('|')",
+  "Investee Company Employees\n('|')",
+  "Investee Company Total Funding\n(USD, '|')",
+  "Investee Company Total Funding\n(Local, '|')",
+  "Investee Company Total Funding Currency\n('|')",
+  "Investee Company Total Funding Round Count\n('|')",
+  "Investee Company Last Funding Date\n('|')",
+  "Investee Company Last Funding Round Type\n('|')",
+  "Investee Company Last Funding Round Amount\n(USD, '|')",
+  "Investee Company Last Funding Round Amount\n(Local, '|')",
+  "Investee Company Last Funding Round Currency\n('|')",
+  "Investee Company Last Funding Round Investor Count\n('|')",
+  "Investee Company Last Funding Round Firm Investor Count\n('|')",
+  "Investee Company Last Funding Round Fund Investor Count\n('|')",
+  "Investee Company Last Funding Round PE Investor Count\n('|')",
+  "Investee Company Last Funding Round VC Investor Count\n('|')",
+  "Investee Company Last Funding Round CVC Investor Count\n('|')",
+  "Investee Company Last Funding Round Angel Investor Count\n('|')",
+  "Investee Company Last Funding Round Accelerator Investor Count\n('|')",
+  "Investee Company Last Funding Round Govt Investor Count\n('|')",
+  "Investee Company Last Funding Round Other Investor Count\n('|')",
+  "Investee Company Last Funding Round Has Syndicate\n('|')",
+  "Investee Company Last Funding Round Syndicate Size\n('|')",
+  "Investee Company Last Funding Round Syndicate Intensity\n('|')",
+  "Investee Company Last Funding Round Is Syndicated (Binary)\n('|')",
+  "Investee Company Last Funding Round Is CVC (Binary)\n('|')",
+  "Investee Company Last Funding Round Is VC (Binary)\n('|')",
+  "Investee Company Last Funding Round Is PE (Binary)\n('|')",
+  "Investee Company Last Funding Round Is Angel (Binary)\n('|')",
+  "Investee Company Last Funding Round Is Accelerator (Binary)\n('|')",
+  "Investee Company Last Funding Round Is Govt (Binary)\n('|')",
+  "Investee Company Last Funding Round Is Other (Binary)\n('|')",
+  "Investee Company Total Round Count\n('|')",
+  "Investee Company Total Firm Investor Count\n('|')",
+  "Investee Company Total Fund Investor Count\n('|')",
+  "Investee Company Total PE Investor Count\n('|')",
+  "Investee Company Total VC Investor Count\n('|')",
+  "Investee Company Total CVC Investor Count\n('|')",
+  "Investee Company Total Angel Investor Count\n('|')",
+  "Investee Company Total Accelerator Investor Count\n('|')",
+  "Investee Company Total Govt Investor Count\n('|')",
+  "Investee Company Total Other Investor Count\n('|')",
+  "Investor Firm Type\n('|')",
+  "Investor Firm Parent Organization Id\n('|')",
+  "Investor Firm Ultimate Parent Organization Id\n('|')",
+  "Investor Firm Public Status\n('|')",
+  "Investor Firm Employees\n('|')",
+  "Investor Firm Website\n('|')",
+  "Investor Firm Founded Year\n('|')",
+  "Investor Firm Country\n('|')",
+  "Investor Firm State/Region\n('|')",
+  "Investor Firm City\n('|')",
+  "Investor Firm World Location\n('|')",
+  "Investor Firm World Sub Location\n('|')",
+  "Investor Firm Street Address\n('|')",
+  "Investor Firm Zip Code\n('|')",
+  "Investor Firm Area Code Number\n('|')",
+  "Investor Firm Area Code\n('|')",
+  "Investor Firm Primary Industry\n('|')",
+  "Investor Firm Primary SIC Code\n('|')",
+  "Investor Firm Primary NAICS Code\n('|')",
+  "Investor Firm TRBC Business Sector\n('|')",
+  "Investor Firm TRBC Economic Sector\n('|')",
+  "Investor Firm TRBC Industry Group\n('|')",
+  "Investor Firm TRBC Industry\n('|')",
+  "Investor Firm TRBC Activity\n('|')",
+  "Investor Firm TRBC Business Sector Code\n('|')",
+  "Investor Firm TRBC Economic Sector Code\n('|')",
+  "Investor Firm TRBC Industry Group Code\n('|')",
+  "Investor Firm TRBC Industry Code\n('|')",
+  "Investor Firm TRBC Activity Code\n('|')",
+  "Fund Name\n('|')",
+  "Fund Organization Id\n('|')",
+  "Fund Parent Organization Id\n('|')",
+  "Fund Ultimate Parent Organization Id\n('|')",
+  "Fund Type\n('|')",
+  "Fund Status\n('|')",
+  "Fund Currency\n('|')",
+  "Fund Vintage Year\n('|')",
+  "Fund Country\n('|')",
+  "Fund State/Region\n('|')",
+  "Fund City\n('|')",
+  "Fund World Location\n('|')",
+  "Fund World Sub Location\n('|')",
+  "Fund Street Address\n('|')",
+  "Fund Zip Code\n('|')",
+  "Fund Area Code Number\n('|')",
+  "Fund Area Code\n('|')",
+  "Tertiary Security Type\n('|')",
+  "Lastest Round flag in a Company\n('|')",
+  "Estimated Buyout Value\n(USD, '|')",
+  "Estimated Rank Value\n(USD, '|')",
   "PE Deal Round Status"
 ];
 
-/* =========================
-   Requested default columns
-   ========================= */
+/** =========================
+ *  Default selected columns
+ *  EXACT match only
+ *  ========================= */
 const DEFAULT_COLUMNS_REQUESTED = [
-  "Company Name",
-  "Company Nation",
+  "Investee Company Name",
+  "Investee Company Nation",
   "Investee Company TRBC Economic Sector",
-  "No. of Deals in Search Range",
-  "No. of Firms in Search Range",
-  "No. of Funds in Search Range",
-  "Avg Deal Value in Search Range\n(USD, Millions)",
-  "Avg Equity Per Deal in Search Range\n(USD, Millions)",
-  "Avg Equity Per Firm in Search Range\n(USD, Millions)",
-  "Avg Equity Per Fund in Search Range\n(USD, Millions)",
-  "Sum of Equity Invested in Search Range\n(USD, Millions)",
-  "Sum of Deal Value in Search Range\n(USD, Millions)",
-  "Sum of Deal Rank Value in Search Range\n(USD, Millions)",
-  "Investment Date\n(:, '|')"
+  "Investment Date"
 ];
 
-const DEFAULT_COLUMN_ALIASES = new Map([
-  ["Company Name", ["Investee Company Name"]],
-  ["Company Nation", ["Investee Company Nation"]],
-  ["Investment Date\n(:, '|')", ["Investment Date"]]
-]);
-
-function setStatus(text, kind = "muted") {
+function setStatus(text, kind="muted") {
   const pill = el("statusPill");
   pill.textContent = text;
   pill.className = "pill " + (kind === "danger" ? "danger" : kind === "ok" ? "ok" : "");
 }
-function setError(msg = "") {
-  el("errorBox").textContent = msg;
-}
-function setWarn(msg = "") {
-  el("warnBox").textContent = msg;
-}
-function logProgress(msg) {
-  el("progress").textContent += msg + "\n";
-}
-function clearProgress() {
-  el("progress").textContent = "";
-}
-
-function escapeHtml(s) {
-  return String(s)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-function normalizeForMatch(s) {
-  return String(s ?? "")
-    .replace(/\r?\n/g, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toLowerCase();
-}
+function setError(msg="") { el("errorBox").textContent = msg; }
+function setWarn(msg="") { el("warnBox").textContent = msg; }
+function logProgress(msg) { el("progress").textContent += msg + "\n"; }
+function clearProgress() { el("progress").textContent = ""; }
 
 function initYears() {
   const box = el("yearsBox");
@@ -533,89 +411,49 @@ function initYears() {
     cb.type = "checkbox";
     cb.value = y;
     line.appendChild(cb);
-
     const span = document.createElement("span");
     span.textContent = y;
     line.appendChild(span);
-
     box.appendChild(line);
   }
 }
 
 function setColumnsFromExcelHeaders(headers) {
-  EXCEL_HEADERS = headers.map(h => h === null || h === undefined ? "" : String(h));
-  VALUE_TO_EXACT = new Map();
+  const clean = headers
+    .map(h => String(h ?? ""))
+    .filter(h => h.trim().length > 0);
 
-  const box = el("columnsBox");
-  box.innerHTML = "";
+  EXCEL_HEADERS = clean;
+  PRETTY_TO_EXACT = new Map();
 
-  EXCEL_HEADERS.forEach((exact, idx) => {
-    const label = document.createElement("label");
+  const sel = el("columns");
+  sel.innerHTML = "";
 
-    const cb = document.createElement("input");
-    cb.type = "checkbox";
-    cb.value = String(idx);
-    cb.className = "col-cb";
+  for (const header of clean) {
+    PRETTY_TO_EXACT.set(header, header);
 
-    const txt = document.createElement("span");
-    txt.className = "txt";
-    txt.textContent = exact === "" ? "" : exact;
+    const opt = document.createElement("option");
+    opt.value = header;
+    opt.textContent = header;   // exact text from Excel, including line breaks
+    sel.appendChild(opt);
+  }
 
-    label.appendChild(cb);
-    label.appendChild(txt);
-    box.appendChild(label);
+  const wanted = new Set(DEFAULT_COLUMNS_REQUESTED);
+  let selectedCount = 0;
 
-    VALUE_TO_EXACT.set(cb.value, exact);
-  });
-
-  const normalizedHeaders = EXCEL_HEADERS.map(h => normalizeForMatch(h));
-  const wanted = DEFAULT_COLUMNS_REQUESTED.map(x => normalizeForMatch(x));
-
-  const selectIndices = new Set();
-
-  for (let k = 0; k < DEFAULT_COLUMNS_REQUESTED.length; k++) {
-    const rawReq = DEFAULT_COLUMNS_REQUESTED[k];
-    const req = wanted[k];
-
-    let idx = normalizedHeaders.indexOf(req);
-
-    if (idx === -1) {
-      const aliases = (DEFAULT_COLUMN_ALIASES.get(rawReq) || []).map(a => normalizeForMatch(a));
-      for (const a of aliases) {
-        idx = normalizedHeaders.indexOf(a);
-        if (idx !== -1) break;
-      }
-    }
-
-    if (idx !== -1) {
-      selectIndices.add(String(idx));
+  for (const opt of Array.from(sel.options)) {
+    if (wanted.has(opt.value)) {
+      opt.selected = true;
+      selectedCount++;
     }
   }
 
-  box.querySelectorAll(".col-cb").forEach(cb => {
-    cb.checked = selectIndices.has(cb.value);
-    cb.addEventListener("change", () => {
-      CURRENT_PAGE = 1;
-      renderTable();
-    });
-  });
-
-  const missing = [];
-  for (let k = 0; k < DEFAULT_COLUMNS_REQUESTED.length; k++) {
-    const rawReq = DEFAULT_COLUMNS_REQUESTED[k];
-    const req = wanted[k];
-
-    let ok = normalizedHeaders.includes(req);
-    if (!ok) {
-      const aliases = (DEFAULT_COLUMN_ALIASES.get(rawReq) || []).map(a => normalizeForMatch(a));
-      ok = aliases.some(a => normalizedHeaders.includes(a));
-    }
-    if (!ok) missing.push(rawReq);
-  }
+  const available = new Set(Array.from(sel.options).map(o => o.value));
+  const missing = DEFAULT_COLUMNS_REQUESTED.filter(c => !available.has(c));
 
   if (missing.length) {
     setWarn(
-      `Note: ${missing.length} requested default column(s) were not found in the sample header, so they were skipped:\n` +
+      `Note: ${missing.length} requested default column(s) were not found exactly in the attached header list, so they were skipped:\n` +
       missing.join(" | ")
     );
   } else {
@@ -627,10 +465,8 @@ function getSelectedYears() {
   return Array.from(el("yearsBox").querySelectorAll("input[type=checkbox]:checked")).map(x => x.value);
 }
 
-function getSelectedExactColumns() {
-  return Array.from(el("columnsBox").querySelectorAll(".col-cb:checked"))
-    .map(cb => VALUE_TO_EXACT.get(cb.value))
-    .filter(x => x !== undefined);
+function getSelectedPrettyColumns() {
+  return Array.from(el("columns").selectedOptions).map(o => o.value);
 }
 
 async function githubListYearFiles(year) {
@@ -638,10 +474,7 @@ async function githubListYearFiles(year) {
     `https://api.github.com/repos/${encodeURIComponent(GITHUB_OWNER)}/${encodeURIComponent(GITHUB_REPO)}` +
     `/contents/data/${encodeURIComponent(year)}?ref=${encodeURIComponent(GITHUB_BRANCH)}`;
 
-  const res = await fetch(url, {
-    headers: { "Accept": "application/vnd.github+json" }
-  });
-
+  const res = await fetch(url, { headers: { "Accept": "application/vnd.github+json" } });
   if (!res.ok) {
     const txt = await res.text().catch(() => "");
     throw new Error(`GitHub API error for year ${year}: ${res.status} ${txt}`);
@@ -652,19 +485,13 @@ async function githubListYearFiles(year) {
 
   return items
     .filter(it => it && it.type === "file" && typeof it.name === "string" && it.name.toLowerCase().endsWith(".xlsx"))
-    .map(it => ({
-      name: it.name,
-      download_url: it.download_url,
-      path: it.path
-    }))
+    .map(it => ({ name: it.name, download_url: it.download_url, path: it.path }))
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
 async function fetchWorkbookFirstSheet(downloadUrl) {
   const res = await fetch(downloadUrl);
-  if (!res.ok) {
-    throw new Error(`Failed to fetch ${downloadUrl}: ${res.status} ${res.statusText}`);
-  }
+  if (!res.ok) throw new Error(`Failed to fetch ${downloadUrl}: ${res.status} ${res.statusText}`);
 
   const ab = await res.arrayBuffer();
   const wb = XLSX.read(ab, { type: "array" });
@@ -677,8 +504,17 @@ async function fetchWorkbookFirstSheet(downloadUrl) {
   return { rows: Array.isArray(rows) ? rows : [] };
 }
 
+function escapeHtml(s) {
+  return String(s)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 function renderTable() {
-  const cols = getSelectedExactColumns();
+  const colsPretty = getSelectedPrettyColumns();
   const pageSize = parseInt(el("pageSize").value, 10) || 50;
   const total = VIEW_ROWS.length;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
@@ -692,7 +528,7 @@ function renderTable() {
   thead.innerHTML = "";
   const trh = document.createElement("tr");
 
-  for (const c of cols) {
+  for (const c of colsPretty) {
     const th = document.createElement("th");
     th.innerHTML = escapeHtml(c);
     trh.appendChild(th);
@@ -704,7 +540,7 @@ function renderTable() {
 
   for (const r of pageRows) {
     const tr = document.createElement("tr");
-    for (const c of cols) {
+    for (const c of colsPretty) {
       const td = document.createElement("td");
       td.innerHTML = escapeHtml(r?.[c] ?? "");
       tr.appendChild(td);
@@ -715,19 +551,22 @@ function renderTable() {
   el("pageInfo").textContent = `Page ${CURRENT_PAGE} / ${totalPages} (showing ${total === 0 ? 0 : start + 1}-${end} of ${total})`;
   el("prevBtn").disabled = (CURRENT_PAGE <= 1);
   el("nextBtn").disabled = (CURRENT_PAGE >= totalPages);
-  el("downloadBtn").disabled = (total === 0 || cols.length === 0);
+  el("downloadBtn").disabled = (total === 0 || colsPretty.length === 0);
+
   el("countPill").textContent = `Rows: ${total.toLocaleString()}`;
 }
 
 function downloadCsv() {
-  const cols = getSelectedExactColumns();
-  if (!cols.length) return;
+  const colsPretty = getSelectedPrettyColumns();
+  if (!colsPretty.length) return;
 
+  const rows = VIEW_ROWS;
   const csvLines = [];
-  csvLines.push(cols.map(c => `"${String(c).replaceAll('"', '""')}"`).join(","));
 
-  for (const r of VIEW_ROWS) {
-    const line = cols.map(c => `"${String(r?.[c] ?? "").replaceAll('"', '""')}"`).join(",");
+  csvLines.push(colsPretty.map(c => `"${String(c).replaceAll('"','""')}"`).join(","));
+
+  for (const r of rows) {
+    const line = colsPretty.map(c => `"${String(r?.[c] ?? "").replaceAll('"','""')}"`).join(",");
     csvLines.push(line);
   }
 
@@ -746,7 +585,6 @@ async function runQuery() {
   setStatus("Working…");
 
   const years = getSelectedYears();
-  const selectedCols = getSelectedExactColumns();
   const maxFilesPerYear = Math.max(1, Math.min(24, parseInt(el("maxFilesPerYear").value, 10) || 12));
 
   if (!years.length) {
@@ -755,7 +593,8 @@ async function runQuery() {
     return;
   }
 
-  if (!selectedCols.length) {
+  const selectedPretty = getSelectedPrettyColumns();
+  if (!selectedPretty.length) {
     setStatus("Idle");
     setError("Select at least one column.");
     return;
@@ -764,6 +603,7 @@ async function runQuery() {
   ALL_ROWS = [];
   VIEW_ROWS = [];
   CURRENT_PAGE = 1;
+
   el("filesPill").textContent = "Files: 0";
   el("countPill").textContent = "Rows: 0";
 
@@ -791,8 +631,9 @@ async function runQuery() {
 
         for (const row of rows) {
           const out = {};
-          for (const c of selectedCols) {
-            out[c] = row?.[c] ?? "";
+          for (const exactHeader of selectedPretty) {
+            const exact = PRETTY_TO_EXACT.get(exactHeader);
+            out[exactHeader] = exact ? (row?.[exact] ?? "") : "";
           }
           ALL_ROWS.push(out);
         }
@@ -800,7 +641,6 @@ async function runQuery() {
         logProgress(`      +${rows.length} rows`);
         el("countPill").textContent = `Rows: ${ALL_ROWS.length.toLocaleString()}`;
       }
-
       logProgress("");
     }
 
@@ -820,22 +660,12 @@ async function runQuery() {
   }
 }
 
-/* =========================
-   Events
-   ========================= */
+// Events
 el("runBtn").addEventListener("click", runQuery);
-el("prevBtn").addEventListener("click", () => {
-  CURRENT_PAGE -= 1;
-  renderTable();
-});
-el("nextBtn").addEventListener("click", () => {
-  CURRENT_PAGE += 1;
-  renderTable();
-});
-el("pageSize").addEventListener("change", () => {
-  CURRENT_PAGE = 1;
-  renderTable();
-});
+el("prevBtn").addEventListener("click", () => { CURRENT_PAGE -= 1; renderTable(); });
+el("nextBtn").addEventListener("click", () => { CURRENT_PAGE += 1; renderTable(); });
+el("pageSize").addEventListener("change", () => { CURRENT_PAGE = 1; renderTable(); });
+el("columns").addEventListener("change", () => { CURRENT_PAGE = 1; renderTable(); });
 el("downloadBtn").addEventListener("click", downloadCsv);
 
 el("selectAllYears").addEventListener("click", () => {
@@ -847,24 +677,27 @@ el("clearYears").addEventListener("click", () => {
 });
 
 el("selectAllCols").addEventListener("click", () => {
-  el("columnsBox").querySelectorAll(".col-cb").forEach(cb => cb.checked = true);
+  const sel = el("columns");
+  Array.from(sel.options).forEach(o => o.selected = true);
   CURRENT_PAGE = 1;
   renderTable();
 });
 
 el("clearCols").addEventListener("click", () => {
-  el("columnsBox").querySelectorAll(".col-cb").forEach(cb => cb.checked = false);
+  const sel = el("columns");
+  Array.from(sel.options).forEach(o => o.selected = false);
   CURRENT_PAGE = 1;
   renderTable();
 });
 
-/* =========================
-   Init
-   ========================= */
+// Init
 (function init() {
   el("repoPill").textContent = `${GITHUB_OWNER} / ${GITHUB_REPO} @ ${GITHUB_BRANCH}`;
   initYears();
+
+  // Populate columns immediately from exact Excel headers
   setColumnsFromExcelHeaders(PRESET_EXCEL_HEADERS);
+
   renderTable();
 })();
 </script>
