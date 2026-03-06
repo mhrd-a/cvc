@@ -35,13 +35,11 @@
     .stickyTop { position: sticky; top: 0; background: white; padding-top: 8px; z-index: 2; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
 
-    /* IMPORTANT:
-       Keep line breaks exactly as in Excel inside the column list */
+    /* Keep line breaks exactly as in Excel */
     #columns option {
       white-space: pre-wrap;
     }
 
-    /* Also keep line breaks in table headers/cells if selected */
     #table th, #table td {
       white-space: pre-wrap;
       word-break: break-word;
@@ -172,6 +170,7 @@ const PRESET_EXCEL_HEADERS = [
   "Investee Company TRBC Economic Sector",
   "Investment Date",
   "Round Number",
+  "",
   "Firm Investor Name",
   "Firm Investor Organization Id",
   "Fund Investor Name",
@@ -192,11 +191,79 @@ const PRESET_EXCEL_HEADERS = [
   "Investee Company World Sub Location (Branch Office)\n('|')",
   "Investee Company Zip Code (Branch Office)\n('|')",
   "Investee Company City\n('|')",
+  "Investee Company County\n('|')",
+  "Investee Company Metropolitan Location\n('|')",
+  "Investee Company North American Location\n('|')",
   "Investee Company State/Region\n('|')",
   "Investee Company World Location\n('|')",
   "Investee Company World Sub Location\n('|')",
   "Investee Company Street Address\n('|')",
   "Investee Company Zip Code\n('|')",
+  "Investee Company Currency\n('|')",
+  "Investee Company Latest Revenue\n(USD, '|')",
+  "Investee Company Latest Revenue\n(Local, '|')",
+  "Investee Company Revenue Date\n('|')",
+  "Investee Company Latest EBITDA\n(USD, '|')",
+  "Investee Company Latest EBITDA\n(Local, '|')",
+  "Investee Company EBITDA Date\n('|')",
+  "Investee Company Total Assets\n(USD, '|')",
+  "Investee Company Total Assets\n(Local, '|')",
+  "Investee Company Assets Date\n('|')",
+  "Investee Company Total Equity\n(USD, '|')",
+  "Investee Company Total Equity\n(Local, '|')",
+  "Investee Company Equity Date\n('|')",
+  "Investee Company Last Twelve Months Revenue\n(USD, '|')",
+  "Investee Company Last Twelve Months Revenue\n(Local, '|')",
+  "Investee Company Last Twelve Months EBITDA\n(USD, '|')",
+  "Investee Company Last Twelve Months EBITDA\n(Local, '|')",
+  "Investee Company Original Revenue\n(USD, '|')",
+  "Investee Company Original Revenue\n(Local, '|')",
+  "Investee Company Original Revenue Date\n('|')",
+  "Investee Company Original EBITDA\n(USD, '|')",
+  "Investee Company Original EBITDA\n(Local, '|')",
+  "Investee Company Original EBITDA Date\n('|')",
+  "Investee Company Current Total Assets\n(USD, '|')",
+  "Investee Company Current Total Assets\n(Local, '|')",
+  "Investee Company Current Assets Date\n('|')",
+  "Investee Company Original Total Assets\n(USD, '|')",
+  "Investee Company Original Total Assets\n(Local, '|')",
+  "Investee Company Original Assets Date\n('|')",
+  "Investee Company Current Total Equity\n(USD, '|')",
+  "Investee Company Current Total Equity\n(Local, '|')",
+  "Investee Company Current Equity Date\n('|')",
+  "Investee Company Original Total Equity\n(USD, '|')",
+  "Investee Company Original Total Equity\n(Local, '|')",
+  "Investee Company Original Equity Date\n('|')",
+  "Investee Company Enterprise Value\n(USD, '|')",
+  "Investee Company Enterprise Value\n(Local, '|')",
+  "Investee Company Enterprise Value Date\n('|')",
+  "Investee Company Latest Valuation\n(USD, '|')",
+  "Investee Company Latest Valuation\n(Local, '|')",
+  "Investee Company Latest Valuation Date\n('|')",
+  "Investee Company Latest Valuation Type\n('|')",
+  "Investee Company Development Stage\n('|')",
+  "Investee Company Business Description\n('|')",
+  "Investee Company Type\n('|')",
+  "Investee Company TRBC Business Sector\n('|')",
+  "Investee Company TRBC Economic Sector\n('|')",
+  "Investee Company TRBC Industry Group\n('|')",
+  "Investee Company TRBC Industry\n('|')",
+  "Investee Company TRBC Activity\n('|')",
+  "Investee Company TRBC Business Sector Code\n('|')",
+  "Investee Company TRBC Economic Sector Code\n('|')",
+  "Investee Company TRBC Industry Group Code\n('|')",
+  "Investee Company TRBC Industry Code\n('|')",
+  "Investee Company TRBC Activity Code\n('|')",
+  "Investee Company Primary Industry\n('|')",
+  "Investee Company Primary SIC Code\n('|')",
+  "Investee Company Primary NAICS Code\n('|')",
+  "Investee Company Ultimate Parent BEID\n('|')",
+  "Investee Company Ultimate Parent Name\n('|')",
+  "Investee Company Ultimate Parent Nation\n('|')",
+  "Investee Company Public Status\n('|')",
+  "Investee Company Website\n('|')",
+  "Investee Company Founded Year\n('|')",
+  "Investee Company Employees\n('|')",
   "Investor Firm/TRBC Industry Group Name\n('|')",
   "Investor Firm/TRBC Industry Name\n('|')",
   "Investor Firm/TRBC Activity Name\n('|')",
@@ -265,29 +332,6 @@ const PRESET_EXCEL_HEADERS = [
   "Fund Total Value Distributed\n(Local, '|')",
   "Fund Total Value Remaining\n(USD, '|')",
   "Fund Total Value Remaining\n(Local, '|')",
-  "Investee Company Development Stage\n('|')",
-  "Investee Company Business Description\n('|')",
-  "Investee Company Type\n('|')",
-  "Investee Company TRBC Business Sector\n('|')",
-  "Investee Company TRBC Economic Sector\n('|')",
-  "Investee Company TRBC Industry Group\n('|')",
-  "Investee Company TRBC Industry\n('|')",
-  "Investee Company TRBC Activity\n('|')",
-  "Investee Company TRBC Business Sector Code\n('|')",
-  "Investee Company TRBC Economic Sector Code\n('|')",
-  "Investee Company TRBC Industry Group Code\n('|')",
-  "Investee Company TRBC Industry Code\n('|')",
-  "Investee Company TRBC Activity Code\n('|')",
-  "Investee Company Primary Industry\n('|')",
-  "Investee Company Primary SIC Code\n('|')",
-  "Investee Company Primary NAICS Code\n('|')",
-  "Investee Company Ultimate Parent BEID\n('|')",
-  "Investee Company Ultimate Parent Name\n('|')",
-  "Investee Company Ultimate Parent Nation\n('|')",
-  "Investee Company Public Status\n('|')",
-  "Investee Company Website\n('|')",
-  "Investee Company Founded Year\n('|')",
-  "Investee Company Employees\n('|')",
   "Investee Company Total Funding\n(USD, '|')",
   "Investee Company Total Funding\n(Local, '|')",
   "Investee Company Total Funding Currency\n('|')",
@@ -335,15 +379,6 @@ const PRESET_EXCEL_HEADERS = [
   "Investor Firm Employees\n('|')",
   "Investor Firm Website\n('|')",
   "Investor Firm Founded Year\n('|')",
-  "Investor Firm Country\n('|')",
-  "Investor Firm State/Region\n('|')",
-  "Investor Firm City\n('|')",
-  "Investor Firm World Location\n('|')",
-  "Investor Firm World Sub Location\n('|')",
-  "Investor Firm Street Address\n('|')",
-  "Investor Firm Zip Code\n('|')",
-  "Investor Firm Area Code Number\n('|')",
-  "Investor Firm Area Code\n('|')",
   "Investor Firm Primary Industry\n('|')",
   "Investor Firm Primary SIC Code\n('|')",
   "Investor Firm Primary NAICS Code\n('|')",
@@ -361,19 +396,6 @@ const PRESET_EXCEL_HEADERS = [
   "Fund Organization Id\n('|')",
   "Fund Parent Organization Id\n('|')",
   "Fund Ultimate Parent Organization Id\n('|')",
-  "Fund Type\n('|')",
-  "Fund Status\n('|')",
-  "Fund Currency\n('|')",
-  "Fund Vintage Year\n('|')",
-  "Fund Country\n('|')",
-  "Fund State/Region\n('|')",
-  "Fund City\n('|')",
-  "Fund World Location\n('|')",
-  "Fund World Sub Location\n('|')",
-  "Fund Street Address\n('|')",
-  "Fund Zip Code\n('|')",
-  "Fund Area Code Number\n('|')",
-  "Fund Area Code\n('|')",
   "Tertiary Security Type\n('|')",
   "Lastest Round flag in a Company\n('|')",
   "Estimated Buyout Value\n(USD, '|')",
@@ -383,13 +405,18 @@ const PRESET_EXCEL_HEADERS = [
 
 /** =========================
  *  Default selected columns
- *  EXACT match only
+ *  based on exact headers in attached file
  *  ========================= */
 const DEFAULT_COLUMNS_REQUESTED = [
   "Investee Company Name",
   "Investee Company Nation",
   "Investee Company TRBC Economic Sector",
-  "Investment Date"
+  "Investment Date",
+  "Firm Investor Name",
+  "Fund Investor Name",
+  "Investor Equity Total\n(USD, Millions)",
+  "Deal Value\n(USD, Millions)",
+  "Deal Rank Value\n(USD, Millions)"
 ];
 
 function setStatus(text, kind="muted") {
@@ -434,17 +461,15 @@ function setColumnsFromExcelHeaders(headers) {
 
     const opt = document.createElement("option");
     opt.value = header;
-    opt.textContent = header;   // exact text from Excel, including line breaks
+    opt.textContent = header;
     sel.appendChild(opt);
   }
 
   const wanted = new Set(DEFAULT_COLUMNS_REQUESTED);
-  let selectedCount = 0;
 
   for (const opt of Array.from(sel.options)) {
     if (wanted.has(opt.value)) {
       opt.selected = true;
-      selectedCount++;
     }
   }
 
@@ -694,10 +719,7 @@ el("clearCols").addEventListener("click", () => {
 (function init() {
   el("repoPill").textContent = `${GITHUB_OWNER} / ${GITHUB_REPO} @ ${GITHUB_BRANCH}`;
   initYears();
-
-  // Populate columns immediately from exact Excel headers
   setColumnsFromExcelHeaders(PRESET_EXCEL_HEADERS);
-
   renderTable();
 })();
 </script>
